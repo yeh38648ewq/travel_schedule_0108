@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>去日本嘻嘻哈哈</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #e74c3c;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --travel-bg: #eeeeee;
+            --column-width: 320px;
+        }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: #333; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Header */
+        header { background-color: var(--primary); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0; }
+        .header-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+        .status-dot { width: 10px; height: 10px; background-color: #e74c3c; border-radius: 50%; display: inline-block; transition: background-color 0.3s; flex-shrink: 0; }
+        .status-dot.online { background-color: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
+        
+        #projectTitle { font-size: 1.2rem; font-weight: 700; color: white; background: transparent; border: none; outline: none; padding: 2px 5px; border-radius: 4px; min-width: 100px; }
+        #projectTitle[contenteditable="true"]:focus { background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--accent); }
+
+        .save-status { font-size: 0.8rem; color: #bdc3c7; margin-left: 10px; }
+        
+        .controls { display: flex; gap: 8px; }
+        button { background: var(--secondary); border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
+        button:hover { background: #46607a; }
+        button.active { background: var(--accent); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Board Layout */
+        .board-container { flex: 1; overflow-x: auto; padding: 20px; display: flex; gap: 20px; align-items: flex-start; }
+        
+        .column { background: #ebecf0; min-width: var(--column-width); max-width: var(--column-width); border-radius: 8px; display: flex; flex-direction: column; max-height: calc(100vh - 100px); box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative; }
+        
+        .column-header { padding: 12px 16px; background: #ebecf0; border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative; border-bottom: 2px solid #ddd; }
+        .day-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .day-title { font-weight: 700; font-size: 1.1rem; color: var(--primary); outline: none; border-bottom: 1px solid transparent; flex: 1; margin-right: 10px;}
+        .day-title:focus { border-bottom-color: var(--accent); }
+        
+        .day-subtitle { font-size: 0.9rem; color: #666; font-weight: 500; outline: none; border-bottom: 1px dashed transparent; min-height: 1.2em; }
+        .day-subtitle:focus { border-bottom-color: var(--accent); }
+        .day-subtitle:empty:before { content: "輸入行程主題..."; color: #aaa; }
+
+        .delete-day-btn { background: transparent; color: #999; font-size: 1.2rem; padding: 0; line-height: 1; opacity: 0; transition: 0.2s; min-width: auto; }
+        .delete-day-btn:hover { color: var(--accent); background: transparent; }
+        .column:hover .delete-day-btn { opacity: 1; }
+
+        .add-day-column { min-width: 60px; height: 100%; display: flex; align-items: flex-start; padding-top: 10px; }
+        .add-day-btn { width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.5); border: 2px dashed #bdc3c7; color: #7f8c8d; font-size: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .add-day-btn:hover { background: white; border-color: var(--primary); color: var(--primary); transform: scale(1.1); }
+
+        .card-list { padding: 8px; overflow-y: auto; flex: 1; min-height: 50px; }
+        
+        .card { background: var(--card-bg); border-radius: 6px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); cursor: grab; border-left: 4px solid #95a5a6; position: relative; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        .card.type-travel { border-left-color: #7f8c8d; background-color: var(--travel-bg); }
+        .card.type-food { border-left-color: #e67e22; }
+        .card.type-spot { border-left-color: #27ae60; }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+        .time { font-weight: 700; color: #e67e22; font-size: 0.9rem; min-width: 45px; }
+        .card-actions { opacity: 0; transition: opacity 0.2s; font-size: 0.8rem; }
+        .card:hover .card-actions { opacity: 1; }
+        .card-actions span { cursor: pointer; margin-left: 5px; color: #7f8c8d; }
+        .card-actions span:hover { color: var(--accent); }
+
+        .title { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; color: #2c3e50; outline: none; }
+        .desc { font-size: 0.9rem; color: #555; white-space: pre-wrap; outline: none; line-height: 1.5; }
+        
+        /* 連結樣式 */
+        .link-list { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+        .link-item { font-size: 0.85rem; background: #f0f2f5; padding: 4px 8px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e1e4e8; }
+        .link-item a { color: #2980b9; text-decoration: none; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 220px; display: flex; align-items: center; gap: 4px; }
+        .link-item a:hover { text-decoration: underline; }
+        .link-remove { cursor: pointer; color: #999; margin-left: 8px; font-weight: bold; font-size: 1rem; line-height: 1;}
+        .link-remove:hover { color: var(--accent); }
+
+        /* Image Preview */
+        .img-preview { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .img-container { position: relative; width: 60px; height: 60px; }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; cursor: pointer; }
+        .img-remove { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 15px; height: 15px; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+        /* Helpers */
+        .read-only .card-actions, .read-only .delete-day-btn, .read-only .add-day-column, .read-only .add-card-btn, .read-only .link-remove, .read-only .img-remove { display: none !important; }
+        .read-only [contenteditable] { pointer-events: none; }
+        [contenteditable]:focus { background-color: rgba(255, 166, 0, 0.1); border-radius: 2px; }
+
+        .add-card-btn { width: 100%; padding: 8px; background: transparent; border: 2px dashed #bdc3c7; color: #7f8c8d; border-radius: 6px; margin-top: 5px; cursor: pointer; }
+        .add-card-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(44, 62, 80, 0.05); }
+
+        /* Card Bottom Actions */
+        .card-bottom-actions { margin-top: 8px; display: flex; gap: 10px; font-size: 0.85rem; color: #7f8c8d; }
+        .card-bottom-actions label, .card-bottom-actions span { cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
+        .card-bottom-actions label:hover, .card-bottom-actions span:hover { color: var(--primary); }
+
+        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; display: flex; justify-content: center; align-items: center; flex-direction: column; font-weight: bold; color: var(--primary); opacity: 0; pointer-events: none; transition: 0.3s; }
+        #loading.active { opacity: 1; pointer-events: all; }
+
+        @media (max-width: 768px) {
+            .board-container { flex-direction: column; align-items: center; }
+            .column { width: 100%; max-width: 100%; }
+            .add-day-column { width: 100%; justify-content: center; height: auto; padding-bottom: 50px; }
+            .controls button span { display: none; }
+            .controls button { padding: 6px 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-left">
+        <span id="statusDot" class="status-dot"></span>
+        <span id="projectTitle" contenteditable="false" onblur="saveTrigger()">去日本嘻嘻哈哈</span>
+        <span id="saveStatus" class="save-status"></span>
+    </div>
+    <div class="controls">
+        <button id="toggleEdit" onclick="toggleEditMode()">✏️ <span>去編輯</span></button>
+        <button id="undoBtn" onclick="performUndo()" disabled>↶ <span>復原</span></button>
+        <button id="redoBtn" onclick="performRedo()" disabled>↷ <span>重做</span></button>
+    </div>
+</header>
+
+<div id="loading" class="active">
+    <div>連線同步中...</div>
+</div>
+
+<div class="board-container" id="board">
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    // ★★★ 請替換成你的 Firebase 設定 ★★★
+    const firebaseConfig = {
+      apiKey: "AIzaSyAQvaTOqGpa39l33XTg8r13kMZvtPAA4Ds",
+      authDomain: "travelschedule-5fb2f.firebaseapp.com",
+      projectId: "travelschedule-5fb2f",
+      storageBucket: "travelschedule-5fb2f.firebasestorage.app",
+      messagingSenderId: "265891148429",
+      appId: "1:265891148429:web:bc7602ed700a89f4eae8c4",
+      measurementId: "G-C28PN16XJY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const DB_PATH = 'trips/japan_2024_full';
+
+    // -------------------------------------------------------------------------
+    // 預設資料
+    // -------------------------------------------------------------------------
+    const defaultData = {
+        projectTitle: "去日本嘻嘻哈哈",
+        days: [
+            {
+                "day": "行前準備",
+                "title": "交通與住宿策略",
+                "items": [
+                { "time": "交通票券", "title": "新幹線建議", "desc": "本行程包含兩次長途移動 (博多↔東京)。<br>建議購買 **JR 全國版鐵路周遊券 (7日)**。", "type": "travel", "links": ["https://www.japanrailpass.net/"], "images": [] },
+                { "time": "行程重點", "title": "東京加時賽", "desc": "利用 Day 5 白天攻略「吉祥寺與下北澤」。", "type": "spot", "links": [], "images": [] }
+                ]
+            },
+            {
+                "day": "Day 1 (2/4)",
+                "title": "初抵九州・博多之夜",
+                "items": [
+                { "time": "14:00", "title": "抵達福岡機場", "desc": "搭計程車或地鐵約 15 分鐘即可抵達博多車站。", "type": "travel", "links": [], "images": [] },
+                { "time": "晚餐推薦", "title": "博多美食", "desc": "博多華味鳥、吉塚鰻魚屋。", "type": "food", "links": ["https://www.hanamidori.net/"], "images": [] }
+                ]
+            }
+            // ... (為了版面整潔，這裡只列出部分範例，但功能是支援完整資料的)
+        ]
+    };
+
+    let currentDataState = "";
+    let isReadOnly = true;
+    let isSaving = false;
+    let historyStack = [];
+    let redoStack = [];
+
+    // 掛載函式
+    window.toggleEditMode = toggleEditMode;
+    window.performUndo = performUndo;
+    window.performRedo = performRedo;
+    window.addCard = addCard;
+    window.deleteCard = deleteCard;
+    window.handleImageUpload = handleImageUpload;
+    window.removeImage = removeImage;
+    window.updateType = updateType;
+    window.saveTrigger = saveTrigger;
+    window.addDay = addDay;
+    window.deleteDay = deleteDay;
+    window.addLink = addLink;      // ★ 新增
+    window.removeLink = removeLink; // ★ 新增
+
+    initApp();
+
+    function initApp() {
+        const loadingEl = document.getElementById('loading');
+        const tripRef = ref(db, DB_PATH);
+        
+        onValue(tripRef, (snapshot) => {
+            let data = snapshot.val();
+            
+            if (data && Array.isArray(data)) {
+                data = { projectTitle: "去日本嘻嘻哈哈", days: data };
+            }
+
+            if (data) {
+                const jsonString = JSON.stringify(data);
+                if (jsonString !== currentDataState) {
+                    if(currentDataState) {
+                        historyStack.push(currentDataState);
+                        if(historyStack.length > 20) historyStack.shift();
+                    }
+                    currentDataState = jsonString;
+                    renderBoard(data);
+                    updateUndoButtons();
+                }
+                updateStatus(true);
+            } else {
+                saveToFirebase(defaultData);
+            }
+            loadingEl.classList.remove('active');
+        }, (err) => {
+            console.error(err);
+            updateStatus(false);
+            loadingEl.classList.remove('active');
+        });
+    }
+
+    function saveToFirebase(data) {
+        isSaving = true;
+        updateSaveStatus('同步中...');
+        set(ref(db, DB_PATH), data).then(() => {
+            updateSaveStatus('已同步');
+            setTimeout(() => updateSaveStatus(''), 2000);
+            isSaving = false;
+        });
+    }
+
+    function saveTrigger() {
+        if (isReadOnly) return;
+        setTimeout(() => {
+            const data = getDataFromDOM();
+            const jsonString = JSON.stringify(data);
+            if (jsonString === currentDataState) return;
+            
+            historyStack.push(currentDataState);
+            if(historyStack.length > 20) historyStack.shift();
+            redoStack = []; 
+            updateUndoButtons();
+            
+            currentDataState = jsonString;
+            saveToFirebase(data);
+        }, 100);
+    }
+
+    function performUndo() {
+        if (historyStack.length === 0) return;
+        redoStack.push(currentDataState);
+        const prevState = historyStack.pop();
+        currentDataState = prevState;
+        const data = JSON.parse(prevState);
+        renderBoard(data);
+        updateUndoButtons();
+        saveToFirebase(data);
+    }
+
+    function performRedo() {
+        if (redoStack.length === 0) return;
+        historyStack.push(currentDataState);
+        const nextState = redoStack.pop();
+        currentDataState = nextState;
+        const data = JSON.parse(nextState);
+        renderBoard(data);
+        updateUndoButtons();
+        saveToFirebase(data);
+    }
+
+    function updateUndoButtons() {
+        document.getElementById('undoBtn').disabled = (historyStack.length === 0);
+        document.getElementById('redoBtn').disabled = (redoStack.length === 0);
+    }
+
+    // ★ DOM 讀取：包含 links
+    function getDataFromDOM() {
+        const projectTitle = document.getElementById('projectTitle').innerText;
+        const columns = document.querySelectorAll('.column');
+        const daysData = [];
+        
+        columns.forEach(col => {
+            const dayTitle = col.querySelector('.day-title').innerText;
+            const subtitle = col.querySelector('.day-subtitle').innerText;
+            const items = [];
+            col.querySelectorAll('.card').forEach(card => {
+                items.push({
+                    time: card.querySelector('.time').innerText,
+                    title: card.querySelector('.title').innerText,
+                    desc: card.querySelector('.desc').innerHTML,
+                    type: getTypeFromClass(card),
+                    links: getLinksFromCard(card), // ★ 讀取連結
+                    images: getImagesFromCard(card)
+                });
+            });
+            daysData.push({ day: dayTitle, title: subtitle, items: items });
+        });
+        
+        return { projectTitle: projectTitle, days: daysData };
+    }
+
+    function getTypeFromClass(card) {
+        if (card.classList.contains('type-travel')) return 'travel';
+        if (card.classList.contains('type-food')) return 'food';
+        return 'spot';
+    }
+
+    function getImagesFromCard(card) {
+        const imgs = [];
+        card.querySelectorAll('.img-container img').forEach(img => imgs.push(img.src));
+        return imgs;
+    }
+
+    // ★ 讀取卡片上的連結
+    function getLinksFromCard(card) {
+        const links = [];
+        card.querySelectorAll('.link-item a').forEach(a => links.push(a.href));
+        return links;
+    }
+
+    // ★ 渲染邏輯
+    function renderBoard(data) {
+        const board = document.getElementById('board');
+        board.innerHTML = '';
+        
+        document.getElementById('projectTitle').innerText = data.projectTitle || "未命名行程";
+        document.title = data.projectTitle || "去日本嘻嘻哈哈";
+
+        const days = data.days || [];
+
+        days.forEach((dayData, colIndex) => {
+            const col = document.createElement('div');
+            col.className = 'column';
+            col.innerHTML = `
+                <div class="column-header">
+                    <div class="day-row">
+                        <span contenteditable="${!isReadOnly}" onblur="saveTrigger()" class="day-title">${dayData.day}</span>
+                        <button class="delete-day-btn" onclick="deleteDay(${colIndex})">×</button>
+                    </div>
+                    <div contenteditable="${!isReadOnly}" onblur="saveTrigger()" class="day-subtitle">${dayData.title || ''}</div>
+                </div>
+                <div class="card-list"></div>
+                <button class="add-card-btn" onclick="addCard(${colIndex})">+ 新增行程</button>
+            `;
+            
+            const list = col.querySelector('.card-list');
+            (dayData.items || []).forEach(item => {
+                list.appendChild(createCardElement(item));
+            });
+
+            board.appendChild(col);
+
+            new Sortable(list, {
+                group: 'shared',
+                animation: 150,
+                disabled: isReadOnly,
+                onEnd: saveTrigger
+            });
+        });
+
+        const addDayCol = document.createElement('div');
+        addDayCol.className = 'add-day-column';
+        addDayCol.innerHTML = `<button class="add-day-btn" onclick="addDay()" title="新增一天">+</button>`;
+        board.appendChild(addDayCol);
+        
+        if (isReadOnly) {
+            board.classList.add('read-only');
+            document.getElementById('projectTitle').contentEditable = "false";
+        } else {
+            board.classList.remove('read-only');
+            document.getElementById('projectTitle').contentEditable = "true";
+        }
+    }
+
+    function createCardElement(item) {
+        const el = document.createElement('div');
+        el.className = `card type-${item.type || 'spot'}`;
+        
+        // 圖片
+        let imagesHtml = '';
+        (item.images || []).forEach(src => {
+            imagesHtml += `<div class="img-container"><img src="${src}" onclick="window.open(this.src)"><div class="img-remove" onclick="removeImage(this)">X</div></div>`;
+        });
+
+        // ★ 連結
+        let linksHtml = '';
+        (item.links || []).forEach(link => {
+            linksHtml += `
+                <div class="link-item">
+                    <a href="${link}" target="_blank">🔗 ${link.substring(0, 25)}${link.length > 25 ? '...' : ''}</a>
+                    <span class="link-remove" onclick="removeLink(this)">×</span>
+                </div>`;
+        });
+
+        el.innerHTML = `
+            <div class="card-header">
+                <span class="time" contenteditable="true" onblur="saveTrigger()">${item.time}</span>
+                <div class="card-actions">
+                    <span onclick="updateType(this, 'spot')">景</span>
+                    <span onclick="updateType(this, 'food')">食</span>
+                    <span onclick="updateType(this, 'travel')">行</span>
+                    <span onclick="deleteCard(this)">🗑️</span>
+                </div>
+            </div>
+            <div class="title" contenteditable="true" onblur="saveTrigger()">${item.title}</div>
+            <div class="desc" contenteditable="true" onblur="saveTrigger()">${item.desc}</div>
+            
+            <div class="link-list">${linksHtml}</div>
+            <div class="img-preview">${imagesHtml}</div>
+            
+            <div class="card-actions card-bottom-actions">
+                <label>📷 加圖 <input type="file" style="display:none" accept="image/*" onchange="handleImageUpload(this)"></label>
+                <span onclick="addLink(this)">🔗 加連結</span>
+            </div>
+        `;
+        
+        if(isReadOnly) {
+            el.querySelectorAll('[contenteditable]').forEach(span => span.contentEditable = "false");
+        }
+        return el;
+    }
+
+    function addDay() {
+        if(isReadOnly) return;
+        const currentData = getDataFromDOM();
+        currentData.days.push({ day: `Day ${currentData.days.length + 1}`, title: "輸入行程重點...", items: [] });
+        saveToFirebase(currentData);
+    }
+
+    function deleteDay(index) {
+        if(isReadOnly) return;
+        if(!confirm(`確定要刪除第 ${index + 1} 天的所有行程嗎？`)) return;
+        const currentData = getDataFromDOM();
+        currentData.days.splice(index, 1);
+        saveToFirebase(currentData);
+    }
+
+    function toggleEditMode() {
+        isReadOnly = !isReadOnly;
+        const btn = document.getElementById('toggleEdit');
+        const board = document.getElementById('board');
+        const title = document.getElementById('projectTitle');
+        
+        if (isReadOnly) {
+            btn.innerHTML = "✏️<span>去編輯</span>";
+            btn.classList.remove('active');
+            board.classList.add('read-only');
+            title.contentEditable = "false";
+        } else {
+            btn.innerHTML = "🔒<span>回唯獨</span>";
+            btn.classList.add('active');
+            board.classList.remove('read-only');
+            title.contentEditable = "true";
+        }
+        if(currentDataState) renderBoard(JSON.parse(currentDataState));
+    }
+
+    function addCard(colIndex) {
+        const newItem = { time: "00:00", title: "新行程", desc: "...", type: "spot", images:[], links:[] };
+        const col = document.querySelectorAll('.column')[colIndex];
+        const list = col.querySelector('.card-list');
+        list.appendChild(createCardElement(newItem));
+        saveTrigger();
+    }
+
+    function deleteCard(btn) {
+        if (!confirm("確定刪除此行程？")) return;
+        btn.closest('.card').remove();
+        saveTrigger();
+    }
+
+    function updateType(btn, type) {
+        btn.closest('.card').className = `card type-${type}`;
+        saveTrigger();
+    }
+
+    // ★ 新增：加入連結
+    function addLink(btn) {
+        if(isReadOnly) return;
+        const url = prompt("請輸入網址 (URL):", "https://");
+        if(url) {
+            const card = btn.closest('.card');
+            const linkList = card.querySelector('.link-list');
+            
+            const div = document.createElement('div');
+            div.className = 'link-item';
+            div.innerHTML = `
+                <a href="${url}" target="_blank">🔗 ${url.substring(0, 25)}${url.length > 25 ? '...' : ''}</a>
+                <span class="link-remove" onclick="removeLink(this)">×</span>
+            `;
+            linkList.appendChild(div);
+            saveTrigger();
+        }
+    }
+
+    // ★ 新增：刪除連結
+    function removeLink(btn) {
+        if(isReadOnly) return;
+        if(confirm("確定刪除此連結？")) {
+            btn.parentElement.remove();
+            saveTrigger();
+        }
+    }
+
+    function updateStatus(isOnline) {
+        const dot = document.getElementById('statusDot');
+        if (isOnline) dot.classList.add('online'); else dot.classList.remove('online');
+    }
+
+    function updateSaveStatus(msg) {
+        document.getElementById('saveStatus').innerText = msg;
+    }
+
+    function handleImageUpload(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const maxWidth = 300;
+                    const scaleSize = maxWidth / img.width;
+                    canvas.width = maxWidth;
+                    canvas.height = img.height * scaleSize;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    const previewArea = input.closest('.card').querySelector('.img-preview');
+                    const div = document.createElement('div');
+                    div.className = 'img-container';
+                    div.innerHTML = `<img src="${compressedDataUrl}" onclick="window.open(this.src)"><div class="img-remove" onclick="removeImage(this)">X</div>`;
+                    previewArea.appendChild(div);
+                    saveTrigger();
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function removeImage(btn) {
+        if (!confirm('刪除這張圖片？')) return;
+        btn.parentElement.remove();
+        saveTrigger();
+    }
+</script>
+</body>
+</html>
