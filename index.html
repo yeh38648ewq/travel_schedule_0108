@@ -11,90 +11,71 @@
         :root { --primary: #2c3e50; --secondary: #34495e; --accent: #e74c3c; --bg: #f3f4f6; --card-bg: #ffffff; --travel-bg: #eeeeee; --column-width: 320px; }
         body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: #333; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* 通用按鈕 */
-        .btn { background: var(--secondary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 1rem; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+        .btn { background: var(--secondary); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; }
         .btn:hover { background: #46607a; }
+        .btn.active { background: var(--accent); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-primary { background: var(--accent); }
         .btn-primary:hover { background: #c0392b; }
         .btn-outline { background: transparent; border: 1px solid #ccc; color: #555; }
         .btn-outline:hover { background: #eee; }
 
-        /* 畫面切換控制 */
         .screen { display: none; height: 100%; flex-direction: column; }
         .screen.active { display: flex; }
 
-        /* --- 1. 登入畫面 --- */
+        /* Login */
         #loginScreen { justify-content: center; align-items: center; background: linear-gradient(135deg, #2c3e50, #3498db); color: white; }
         .login-box { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 12px; backdrop-filter: blur(10px); text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .login-box h1 { margin: 0 0 20px 0; }
         .google-btn { background: white; color: #333; font-weight: bold; display: flex; align-items: center; gap: 10px; padding: 10px 20px; border-radius: 50px; cursor: pointer; border: none; font-size: 1rem; transition: 0.2s; }
-        .google-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-        /* --- 2. 儀表板 (行程列表) --- */
+        /* Dashboard */
         #dashboardScreen { padding: 40px; overflow-y: auto; align-items: center; }
-        .dashboard-container { max-width: 800px; width: 100%; }
-        .user-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .dashboard-container { max-width: 900px; width: 100%; }
+        .section-title { font-size: 1.2rem; color: var(--secondary); margin: 30px 0 15px 0; border-bottom: 2px solid #ddd; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
+        
         .trip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
         .trip-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; border-left: 5px solid var(--primary); position: relative; }
         .trip-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .trip-card h3 { margin: 0 0 10px 0; color: var(--primary); }
-        .trip-card p { margin: 0; color: #7f8c8d; font-size: 0.9rem; }
-        .trip-actions { margin-top: 15px; display: flex; justify-content: flex-end; gap: 5px; }
-        .new-trip-card { border: 2px dashed #bdc3c7; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #7f8c8d; min-height: 120px; }
-        .new-trip-card:hover { border-color: var(--accent); color: var(--accent); }
-        .join-section { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; }
-        .join-form { display: flex; gap: 10px; margin-top: 10px; }
-        .input-code { padding: 8px; border: 1px solid #ddd; border-radius: 4px; flex: 1; }
-
-        /* --- 3. 行程看板 (原本的樣式) --- */
-        /* Header */
-        header { background-color: var(--primary); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0; }
-        .header-left { display: flex; align-items: center; gap: 10px; flex: 1; }
-        .header-right { display: flex; gap: 10px; align-items: center; }
-        .status-dot { width: 10px; height: 10px; background-color: #e74c3c; border-radius: 50%; display: inline-block; transition: background-color 0.3s; flex-shrink: 0; }
-        .status-dot.online { background-color: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
+        .trip-card h3 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.1rem;}
+        .trip-card p { margin: 0; color: #7f8c8d; font-size: 0.9rem; word-break: break-all;}
         
-        #projectTitle { font-size: 1.2rem; font-weight: 700; color: white; background: transparent; border: none; outline: none; padding: 2px 5px; border-radius: 4px; min-width: 100px; }
-        #projectTitle[contenteditable="true"]:focus { background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--accent); }
+        .template-card { border-left-color: #f1c40f; background: #fffcf0; }
+        .template-badge { background: #f1c40f; color: #fff; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; vertical-align: middle; margin-left: 5px;}
+        .new-trip-card { border: 2px dashed #bdc3c7; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #7f8c8d; min-height: 120px; border-left: none;}
+        .new-trip-card:hover { border-color: var(--accent); color: var(--accent); }
 
-        /* Board Layout */
+        /* Board Styles */
+        header { background-color: var(--primary); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0; }
+        .controls { display: flex; gap: 8px; }
+        
         .board-container { flex: 1; overflow-x: auto; padding: 20px; display: flex; gap: 20px; align-items: flex-start; }
         .column { background: #ebecf0; min-width: var(--column-width); max-width: var(--column-width); border-radius: 8px; display: flex; flex-direction: column; max-height: calc(100vh - 100px); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .column-header { padding: 12px 16px; background: #ebecf0; border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom: 2px solid #ddd; }
         .day-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .day-title { font-weight: 700; font-size: 1.1rem; color: var(--primary); outline: none; }
-        .day-subtitle { font-size: 0.9rem; color: #666; font-weight: 500; outline: none; min-height: 1.2em; }
-        .delete-day-btn { background: transparent; color: #999; border: none; cursor: pointer; font-size: 1.2rem; }
-        .delete-day-btn:hover { color: var(--accent); }
-
+        
         .card-list { padding: 8px; overflow-y: auto; flex: 1; min-height: 50px; }
         .card { background: var(--card-bg); border-radius: 6px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); cursor: grab; border-left: 4px solid #95a5a6; }
         .card.type-travel { border-left-color: #7f8c8d; background-color: var(--travel-bg); }
         .card.type-food { border-left-color: #e67e22; }
         .card.type-spot { border-left-color: #27ae60; }
-
+        
         .card-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
         .time { font-weight: 700; color: #e67e22; font-size: 0.9rem; }
         .card-actions { opacity: 0; transition: opacity 0.2s; font-size: 0.8rem; }
         .card:hover .card-actions { opacity: 1; }
         .card-actions span { cursor: pointer; margin-left: 5px; color: #7f8c8d; }
+        .card-actions span:hover { color: var(--accent); }
+
+        .link-item, .img-container { margin-top: 5px; position: relative; }
+        .link-item { font-size: 0.85rem; background: #f0f2f5; padding: 4px; border-radius: 4px; display: flex; justify-content: space-between; }
+        .img-container img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; }
         
-        .link-list { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
-        .link-item { font-size: 0.85rem; background: #f0f2f5; padding: 4px 8px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e1e4e8; }
-        .link-item a { color: #2980b9; text-decoration: none; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 220px; }
-        .link-remove { cursor: pointer; color: #999; margin-left: 8px; }
+        /* 唯讀模式隱藏 */
+        .read-only .card-actions, .read-only .add-card-btn, .read-only .add-day-column, .read-only .delete-day-btn, .read-only .link-remove, .read-only .img-remove { display: none !important; }
+        .read-only [contenteditable] { pointer-events: none; }
+        [contenteditable]:focus { background-color: rgba(255, 166, 0, 0.1); border-radius: 2px; }
 
-        .img-preview { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .img-container { position: relative; width: 60px; height: 60px; }
-        .img-container img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
-        .img-remove { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 15px; height: 15px; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-
-        .add-card-btn { width: 100%; padding: 8px; background: transparent; border: 2px dashed #bdc3c7; color: #7f8c8d; border-radius: 6px; margin-top: 5px; cursor: pointer; }
-        .add-day-column { min-width: 60px; display: flex; padding-top: 10px; }
-        .add-day-btn { width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.5); border: 2px dashed #bdc3c7; color: #7f8c8d; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;}
-
-        /* Loading */
-        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; display: flex; justify-content: center; align-items: center; flex-direction: column; font-weight: bold; color: var(--primary); display: none; }
+        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -104,59 +85,59 @@
 <div id="loginScreen" class="screen active">
     <div class="login-box">
         <h1>✈️ 旅程規劃大師</h1>
-        <p>登入以開始您的雲端協作</p>
-        <button class="google-btn" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="24" alt="G">
-            使用 Google 登入
-        </button>
+        <button class="google-btn" onclick="loginWithGoogle()">使用 Google 登入</button>
     </div>
 </div>
 
 <div id="dashboardScreen" class="screen">
     <div class="dashboard-container">
-        <div class="user-info">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <h2 id="welcomeMsg">你好</h2>
             <button class="btn btn-outline" onclick="logout()">登出</button>
         </div>
         
-        <h3>我的行程表</h3>
-        <div id="tripList" class="trip-grid">
-            </div>
+        <div class="section-title">
+            <span>📚 官方推薦行程 <span style="font-size:0.8rem; color:#888;">(複製後即可編輯)</span></span>
+        </div>
+        <div id="templateList" class="trip-grid"></div>
 
-        <div class="join-section">
-            <h3>🤝 加入朋友的行程</h3>
-            <p>輸入朋友給你的「行程代碼」即可共同編輯。</p>
-            <div class="join-form">
-                <input type="text" id="joinCodeInput" class="input-code" placeholder="貼上行程 ID (例如: -Ny7...)">
-                <button class="btn btn-primary" onclick="joinTrip()">加入</button>
-            </div>
+        <div class="section-title">
+            <span>👤 我的行程表</span>
+        </div>
+        <div id="tripList" class="trip-grid"></div>
+
+        <div style="margin-top:40px; padding-top:20px; border-top:1px solid #ddd;">
+             <h3>🤝 加入朋友的行程</h3>
+             <input type="text" id="joinCodeInput" style="padding:8px; width:200px;" placeholder="輸入行程 ID">
+             <button class="btn btn-primary" onclick="joinTrip()">加入</button>
         </div>
     </div>
 </div>
 
 <div id="boardScreen" class="screen">
     <header>
-        <div class="header-left">
-            <button class="btn" onclick="backToDashboard()">← 返回列表</button>
-            <span id="statusDot" class="status-dot"></span>
-            <span id="projectTitle" contenteditable="true" onblur="saveTitle()">未命名行程</span>
-            <span id="saveStatus" style="font-size:0.8rem; color:#bdc3c7; margin-left:10px;"></span>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <button class="btn" onclick="backToDashboard()">← 返回</button>
+            <span id="projectTitle" contenteditable="false" onblur="saveTitle()" style="font-weight:bold; font-size:1.2rem;">未命名行程</span>
+            <span id="saveStatus" style="font-size:0.8rem;"></span>
         </div>
-        <div class="header-right">
-            <button class="btn" onclick="copyTripId()">📋 複製行程 ID</button>
+        <div class="controls">
+            <button class="btn" onclick="renameTripId()" title="自訂行程 ID">🆔 改ID</button>
+            <button id="toggleEdit" class="btn" onclick="toggleEditMode()">🔒 唯讀</button>
+            <button id="undoBtn" class="btn" onclick="performUndo()" disabled>↶</button>
+            <button id="redoBtn" class="btn" onclick="performRedo()" disabled>↷</button>
+            <button class="btn" onclick="copyTripId()">📋 複製</button>
         </div>
     </header>
-
-    <div class="board-container" id="board">
-        </div>
+    <div class="board-container" id="board"></div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, push, onValue, get, child, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, set, push, onValue, get, child, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // ★★★ 請替換成你的 Firebase 設定 ★★★
+    // ★★★ 請替換成你的 Firebase Config ★★★
     const firebaseConfig = {
         apiKey: "AIzaSyAQvaTOqGpa39l33XTg8r13kMZvtPAA4Ds",
           authDomain: "travelschedule-5fb2f.firebaseapp.com",
@@ -165,43 +146,371 @@
           storageBucket: "travelschedule-5fb2f.firebasestorage.app",
           messagingSenderId: "265891148429",
           appId: "1:265891148429:web:bc7602ed700a89f4eae8c4",
-          measurementId: "G-C28PN16XJY"};// Initialize Firebaseconst app = initializeApp(firebaseConfig);const analytics = getAnalytics(app
+          measurementId: "G-C28PN16XJY"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
+    
     let currentUser = null;
     let currentTripId = null;
-    let isReadOnly = false;
+    
+    // 狀態變數 (Undo/Redo/唯讀)
+    let isReadOnly = true; 
+    let currentDataState = ""; // 用字串比對來判斷是否有變更
+    let historyStack = [];
+    let redoStack = [];
 
     // --- 全域掛載 ---
-    window.loginWithGoogle = loginWithGoogle;
-    window.logout = logout;
+    window.loginWithGoogle = () => signInWithPopup(auth, new GoogleAuthProvider());
+    window.logout = () => signOut(auth).then(()=>location.reload());
     window.createTrip = createTrip;
     window.joinTrip = joinTrip;
     window.loadTrip = loadTrip;
-    window.backToDashboard = backToDashboard;
-    window.copyTripId = copyTripId;
+    window.backToDashboard = () => { currentTripId = null; showScreen('dashboardScreen'); };
+    window.copyTripId = () => navigator.clipboard.writeText(currentTripId).then(()=>alert("已複製 ID: " + currentTripId));
+    window.copyTemplate = copyTemplate;
+    window.renameTripId = renameTripId; // ★ 改 ID 功能
     
     // Board actions
-    window.saveTitle = saveTitle;
-    window.addDay = addDay;
-    window.deleteDay = deleteDay;
-    window.addCard = addCard;
-    window.deleteCard = deleteCard;
-    window.updateType = updateType;
-    window.addLink = addLink;
-    window.removeLink = removeLink;
-    window.handleImageUpload = handleImageUpload;
-    window.removeImage = removeImage;
+    window.toggleEditMode = toggleEditMode;
+    window.performUndo = performUndo;
+    window.performRedo = performRedo;
+    window.saveTitle = () => update(ref(db, `trips/${currentTripId}`), { projectTitle: document.getElementById('projectTitle').innerText });
+    
+    // 我們使用一個統一的 saveTrigger 來處理所有變更 (包含 Undo 紀錄)
     window.saveTrigger = saveTrigger;
 
-    // --- Auth 狀態監聽 ---
+    // DOM 操作
+    window.addDay = () => { if(isReadOnly)return; let d=getDataFromDOM().days; d.push({day:`Day ${d.length+1}`, items:[]}); updateData({days:d}); };
+    window.deleteDay = (i) => { if(isReadOnly)return; if(confirm('刪除?')){ let d=getDataFromDOM().days; d.splice(i,1); updateData({days:d}); }};
+    window.addCard = (i) => { if(isReadOnly)return; document.querySelectorAll('.card-list')[i].innerHTML += createCardHTML({time:'09:00', title:'新活動', type:'spot'}); saveTrigger(); };
+    window.deleteCard = (el) => { if(isReadOnly)return; el.closest('.card').remove(); saveTrigger(); };
+    window.updateType = (el,t) => { if(isReadOnly)return; el.closest('.card').className=`card type-${t}`; saveTrigger(); };
+    window.addLink = (el) => { if(isReadOnly)return; let u=prompt("網址"); if(u) { el.closest('.card').querySelector('.link-list').innerHTML+=`<div class="link-item"><a href="${u}" target="_blank">🔗 連結</a><span onclick="this.parentElement.remove();saveTrigger()" style="cursor:pointer">×</span></div>`; saveTrigger(); }};
+    window.handleImage = (inp) => { 
+        if(isReadOnly || !inp.files[0]) return;
+        let r=new FileReader();
+        r.onload=e=>{
+            inp.closest('.card').querySelector('.img-preview').innerHTML+=`<div class="img-container"><img src="${e.target.result}"><div class="img-remove" onclick="this.parentElement.remove();saveTrigger()" style="position:absolute;top:0;right:0;background:red;color:white;width:15px;height:15px;font-size:10px;display:flex;justify-content:center;cursor:pointer;">×</div></div>`;
+            saveTrigger();
+        }
+        r.readAsDataURL(inp.files[0]);
+    };
+
     onAuthStateChanged(auth, (user) => {
-        const loading = document.getElementById('loading');
         if (user) {
             currentUser = user;
-            document
+            document.getElementById('welcomeMsg').innerText = `Hi, ${user.displayName}`;
+            showScreen('dashboardScreen');
+            loadUserTrips();
+            loadTemplates();
+        } else {
+            showScreen('loginScreen');
+        }
+    });
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    // --- 1. Dashboard 邏輯 ---
+    function loadUserTrips() {
+        onValue(ref(db, `users/${currentUser.uid}/trip_ids`), async (snap) => {
+            const list = document.getElementById('tripList');
+            list.innerHTML = `<div class="trip-card new-trip-card" onclick="createTrip()"><span style="font-size:2rem;">+</span><span>+ 新行程</span></div>`;
+            const ids = snap.val() || {};
+            for(let tid in ids) {
+                const tSnap = await get(child(ref(db), `trips/${tid}/projectTitle`));
+                if(tSnap.exists()) {
+                    const card = document.createElement('div');
+                    card.className = 'trip-card';
+                    card.innerHTML = `<h3>${tSnap.val()}</h3><p>ID: ${tid}</p>`;
+                    card.onclick = () => loadTrip(tid);
+                    list.appendChild(card);
+                }
+            }
+        });
+    }
+
+    function loadTemplates() {
+        onValue(ref(db, 'templates'), (snap) => {
+            const list = document.getElementById('templateList');
+            list.innerHTML = ''; 
+            const templates = snap.val() || {};
+            for (let tid in templates) {
+                const tpl = templates[tid];
+                const card = document.createElement('div');
+                card.className = 'trip-card template-card';
+                card.innerHTML = `<h3>${tpl.projectTitle} <span class="template-badge">公版</span></h3><p>官方推薦</p><button class="btn btn-primary" style="margin-top:10px;" onclick="event.stopPropagation(); copyTemplate('${tid}')">📥 複製</button>`;
+                list.appendChild(card);
+            }
+        });
+    }
+
+    async function copyTemplate(templateId) {
+        if(!confirm("複製此公版行程？")) return;
+        document.getElementById('loading').style.display = 'flex';
+        const snap = await get(child(ref(db), `templates/${templateId}`));
+        const data = snap.val();
+        data.projectTitle += " (副本)";
+        const newRef = push(ref(db, 'trips'));
+        await set(newRef, data);
+        await update(ref(db, `users/${currentUser.uid}/trip_ids`), { [newRef.key]: true });
+        document.getElementById('loading').style.display = 'none';
+        alert("複製成功！");
+    }
+
+    function createTrip() {
+        const refNew = push(ref(db, 'trips'));
+        set(refNew, { projectTitle: "新旅程", days: [{day:"Day 1", items:[]}] }).then(() => {
+            update(ref(db, `users/${currentUser.uid}/trip_ids`), { [refNew.key]: true });
+        });
+    }
+
+    function joinTrip() {
+        const code = document.getElementById('joinCodeInput').value.trim();
+        if(!code) return;
+        get(child(ref(db), `trips/${code}`)).then(snapshot => {
+             if(snapshot.exists()) {
+                 update(ref(db, `users/${currentUser.uid}/trip_ids`), {[code]:true});
+                 alert("加入成功");
+             } else {
+                 alert("找不到此 ID");
+             }
+        });
+    }
+
+    // ★★★ 2. 自訂 ID 功能 (Rename Trip) ★★★
+    async function renameTripId() {
+        if(isReadOnly) { alert("請先切換到編輯模式"); return; }
+        const newId = prompt("請輸入新的 ID (只能英文數字，不可重複):", currentTripId);
+        if(!newId || newId === currentTripId) return;
+        
+        // 檢查格式 (簡單檢查)
+        if(!/^[a-zA-Z0-9_-]+$/.test(newId)) { alert("ID 只能包含英文、數字、底線或連字號"); return; }
+
+        document.getElementById('loading').style.display = 'flex';
+
+        // 檢查是否重複 (全域檢查)
+        const checkSnap = await get(child(ref(db), `trips/${newId}`));
+        if(checkSnap.exists()) {
+            document.getElementById('loading').style.display = 'none';
+            alert("這個 ID 已經被別人用過了，換一個吧！");
+            return;
+        }
+
+        // 開始搬家流程
+        // 1. 取得舊資料
+        const oldRef = ref(db, `trips/${currentTripId}`);
+        const snap = await get(oldRef);
+        const data = snap.val();
+
+        // 2. 寫入新位置
+        await set(ref(db, `trips/${newId}`), data);
+
+        // 3. 更新所有使用者的 trip_ids (這一步在沒有後端的情況下比較難完美，我們只更新當前使用者)
+        // 實務上建議：只更新當前使用者的紀錄，或者警告這是一個新副本
+        // 這裡我們簡單做：刪除當前使用者舊 ID，加入新 ID
+        const userRef = ref(db, `users/${currentUser.uid}/trip_ids`);
+        await update(userRef, { [newId]: true, [currentTripId]: null });
+
+        // 4. (選用) 刪除舊資料 - 為了安全，如果有多人協作，直接刪除會導致別人斷線
+        // 這裡我們選擇「刪除舊的」，假設你是擁有者。若要嚴謹需紀錄 owner。
+        await remove(oldRef);
+
+        currentTripId = newId;
+        document.getElementById('loading').style.display = 'none';
+        alert(`修改成功！新的 ID 是: ${newId}`);
+        // 重新載入以確保路徑正確
+        loadTrip(newId);
+    }
+
+    // --- 3. Board 邏輯 (含 Undo/Redo/唯讀) ---
+    function loadTrip(tid) {
+        currentTripId = tid;
+        showScreen('boardScreen');
+        document.getElementById('loading').style.display = 'flex';
+        
+        // 預設先進入唯讀模式，防止誤觸
+        isReadOnly = true;
+        updateEditModeUI();
+        
+        // 清空歷史紀錄
+        historyStack = [];
+        redoStack = [];
+        updateUndoButtons();
+
+        onValue(ref(db, `trips/${tid}`), (s) => {
+            document.getElementById('loading').style.display = 'none';
+            const d = s.val();
+            if(!d) return;
+
+            // 如果是雲端來的更新，且跟當前不一樣，才更新
+            const jsonStr = JSON.stringify(d);
+            if(jsonStr !== currentDataState) {
+                // 如果我們正在編輯中(historyStack有東西)，且收到外部更新，這裡策略比較複雜
+                // 為了簡單，我們直接覆蓋，但把舊狀態存入 history 避免打字丟失
+                if(!isReadOnly && currentDataState) {
+                     historyStack.push(currentDataState);
+                     updateUndoButtons();
+                }
+                currentDataState = jsonStr;
+                renderBoard(d);
+            }
+        });
+    }
+
+    // 更新資料到 Firebase 的通用函式
+    function updateData(newDataObj) {
+        update(ref(db, `trips/${currentTripId}`), newDataObj);
+    }
+
+    // 觸發存檔 (包含 Undo 邏輯)
+    function saveTrigger() {
+        if (isReadOnly) return;
+        setTimeout(() => {
+            const newData = getDataFromDOM();
+            const jsonStr = JSON.stringify(newData);
+            if(jsonStr === currentDataState) return;
+
+            // 存入 Undo Stack
+            historyStack.push(currentDataState);
+            if(historyStack.length > 20) historyStack.shift();
+            redoStack = []; // 清空 Redo
+            updateUndoButtons();
+
+            currentDataState = jsonStr;
+            updateData(newData);
+        }, 100);
+    }
+
+    function performUndo() {
+        if(historyStack.length === 0 || isReadOnly) return;
+        
+        redoStack.push(currentDataState);
+        const prevState = historyStack.pop();
+        currentDataState = prevState;
+        
+        const data = JSON.parse(prevState);
+        renderBoard(data);
+        updateData(data); // 寫回雲端
+        updateUndoButtons();
+    }
+
+    function performRedo() {
+        if(redoStack.length === 0 || isReadOnly) return;
+
+        historyStack.push(currentDataState);
+        const nextState = redoStack.pop();
+        currentDataState = nextState;
+
+        const data = JSON.parse(nextState);
+        renderBoard(data);
+        updateData(data);
+        updateUndoButtons();
+    }
+
+    function updateUndoButtons() {
+        document.getElementById('undoBtn').disabled = (historyStack.length === 0 || isReadOnly);
+        document.getElementById('redoBtn').disabled = (redoStack.length === 0 || isReadOnly);
+    }
+
+    function toggleEditMode() {
+        isReadOnly = !isReadOnly;
+        updateEditModeUI();
+        // 重新渲染以套用 contenteditable 屬性
+        if(currentDataState) renderBoard(JSON.parse(currentDataState));
+    }
+
+    function updateEditModeUI() {
+        const btn = document.getElementById('toggleEdit');
+        const board = document.getElementById('board');
+        const title = document.getElementById('projectTitle');
+        
+        if (isReadOnly) {
+            btn.innerText = "🔒 唯讀";
+            btn.classList.remove('active');
+            board.classList.add('read-only');
+            title.contentEditable = "false";
+        } else {
+            btn.innerText = "✏️ 編輯";
+            btn.classList.add('active');
+            board.classList.remove('read-only');
+            title.contentEditable = "true";
+        }
+        updateUndoButtons(); // 更新按鈕狀態
+    }
+
+    function renderBoard(d) {
+        document.getElementById('projectTitle').innerText = d.projectTitle || "未命名";
+        const board = document.getElementById('board');
+        board.innerHTML = '';
+        (d.days||[]).forEach((day, i) => {
+            const col = document.createElement('div'); col.className='column';
+            col.innerHTML = `
+                <div class="column-header"><div class="day-row"><span class="day-title" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${day.day}</span><button class="delete-day-btn" onclick="deleteDay(${i})">×</button></div></div>
+                <div class="card-list"></div>
+                <button class="add-card-btn" style="width:100%; padding:10px; border:2px dashed #ccc; background:transparent;" onclick="addCard(${i})">+ 新增</button>
+            `;
+            const lst = col.querySelector('.card-list');
+            (day.items||[]).forEach(item => lst.innerHTML += createCardHTML(item));
+            board.appendChild(col);
+            new Sortable(lst, { group:'shared', animation:150, disabled: isReadOnly, onEnd: saveTrigger });
+        });
+        
+        // 新增天數欄位
+        const addDayCol = document.createElement('div');
+        addDayCol.className = 'add-day-column'; // 使用 CSS class
+        addDayCol.style.minWidth = '60px'; // 確保不會被擠壓
+        addDayCol.style.paddingTop = '10px';
+        addDayCol.innerHTML = `<button style="width:50px; height:50px; border-radius:50%; border:2px dashed #bdc3c7; color:#7f8c8d; font-size:24px; cursor:pointer; background:rgba(255,255,255,0.5);" onclick="addDay()">+</button>`;
+        if(isReadOnly) addDayCol.style.display = 'none';
+        board.appendChild(addDayCol);
+
+        if(isReadOnly) board.classList.add('read-only');
+        else board.classList.remove('read-only');
+    }
+
+    function createCardHTML(item) {
+        let links = (item.links||[]).map(l=>`<div class="link-item"><a href="${l}" target="_blank">🔗 連結</a><span onclick="this.parentElement.remove();saveTrigger()" style="cursor:pointer" class="link-remove">×</span></div>`).join('');
+        let imgs = (item.images||[]).map(s=>`<div class="img-container"><img src="${s}"><div class="img-remove" onclick="this.parentElement.remove();saveTrigger()" style="position:absolute;top:0;right:0;background:red;color:white;width:15px;height:15px;font-size:10px;display:flex;justify-content:center;cursor:pointer;">×</div></div>`).join('');
+        
+        return `<div class="card type-${item.type||'spot'}">
+            <div class="card-header"><span class="time" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${item.time}</span><div class="card-actions"><span onclick="updateType(this,'spot')">景</span><span onclick="updateType(this,'food')">食</span><span onclick="updateType(this,'travel')">行</span><span onclick="deleteCard(this)">🗑️</span></div></div>
+            <div contenteditable="${!isReadOnly}" onblur="saveTrigger()" style="font-weight:bold">${item.title}</div>
+            <div style="font-size:0.85rem; color:#666;" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${item.desc||''}</div>
+            <div class="link-list">${links}</div>
+            <div class="img-preview">${imgs}</div>
+            <div class="card-actions" style="margin-top:5px; justify-content:flex-end; display:flex; gap:10px;">
+                <span onclick="addLink(this)">🔗</span>
+                <label>📷<input type="file" style="display:none" accept="image/*" onchange="handleImage(this)"></label>
+            </div>
+        </div>`;
+    }
+    
+    function getDataFromDOM() {
+        const days = [];
+        document.querySelectorAll('.column').forEach(col => {
+            const items = [];
+            col.querySelectorAll('.card').forEach(c => {
+                let links=[]; c.querySelectorAll('.link-item a').forEach(a=>links.push(a.href));
+                let imgs=[]; c.querySelectorAll('.img-preview img').forEach(i=>imgs.push(i.src));
+                items.push({
+                    time: c.querySelector('.time').innerText,
+                    title: c.children[1].innerText,
+                    desc: c.children[2].innerText,
+                    type: c.classList.contains('type-food')?'food':(c.classList.contains('type-travel')?'travel':'spot'),
+                    links: links,
+                    images: imgs
+                });
+            });
+            days.push({ day: col.querySelector('.day-title').innerText, items: items });
+        });
+        return { projectTitle: document.getElementById('projectTitle').innerText, days: days };
+    }
+</script>
+</body>
+</html>
