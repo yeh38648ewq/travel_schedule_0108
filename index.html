@@ -28,7 +28,7 @@
         .login-box { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 12px; backdrop-filter: blur(10px); text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 300px; }
         .login-btn { width: 100%; margin-bottom: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 20px; border-radius: 50px; cursor: pointer; border: none; font-size: 1rem; transition: 0.2s; }
         .google-btn { background: white; color: #333; }
-        .anon-btn { background: #7f8c8d; color: white; } /* 匿名按鈕樣式 */
+        .anon-btn { background: #7f8c8d; color: white; }
         .login-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
         /* Dashboard */
@@ -73,7 +73,6 @@
         .link-item { font-size: 0.85rem; background: #f0f2f5; padding: 4px; border-radius: 4px; display: flex; justify-content: space-between; }
         .img-container img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; }
         
-        /* 唯讀模式隱藏 */
         .read-only .card-actions, .read-only .add-card-btn, .read-only .add-day-column, .read-only .delete-day-btn, .read-only .link-remove, .read-only .img-remove { display: none !important; }
         .read-only [contenteditable] { pointer-events: none; }
         [contenteditable]:focus { background-color: rgba(255, 166, 0, 0.1); border-radius: 2px; }
@@ -88,18 +87,10 @@
 <div id="loginScreen" class="screen active">
     <div class="login-box">
         <h1>✈️ 旅程規劃大師</h1>
-        
         <button class="login-btn google-btn" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="G">
-            使用 Google 登入
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="G"> 使用 Google 登入
         </button>
-        
-        <button class="login-btn anon-btn" onclick="loginAnonymously()">
-            🕵️ 匿名/訪客登入
-        </button>
-        <div style="font-size:0.8rem; margin-top:10px; color:#ddd;">
-            注意：匿名登入者若登出，資料連結將會遺失，需重新加入。
-        </div>
+        <button class="login-btn anon-btn" onclick="loginAnonymously()">🕵️ 匿名/訪客登入</button>
     </div>
 </div>
 
@@ -110,20 +101,25 @@
             <button class="btn btn-outline" onclick="logout()">登出</button>
         </div>
         
-        <div class="section-title">
-            <span>📚 官方推薦行程 <span style="font-size:0.8rem; color:#888;">(複製後即可編輯)</span></span>
-        </div>
+        <div class="section-title"><span>📚 官方推薦行程</span></div>
         <div id="templateList" class="trip-grid"></div>
 
-        <div class="section-title">
-            <span>👤 我的行程表</span>
-        </div>
+        <div class="section-title"><span>👤 我的行程表</span></div>
         <div id="tripList" class="trip-grid"></div>
 
         <div style="margin-top:40px; padding-top:20px; border-top:1px solid #ddd;">
-             <h3>🤝 加入朋友的行程</h3>
-             <input type="text" id="joinCodeInput" style="padding:8px; width:200px;" placeholder="輸入行程 ID" value="japan2026">
+             <h3>🤝 加入朋友行程</h3>
+             <input type="text" id="joinCodeInput" style="padding:8px; width:200px;" placeholder="輸入行程 ID">
              <button class="btn btn-primary" onclick="joinTrip()">加入</button>
+        </div>
+
+        <div style="margin-top:20px; padding-top:20px; border-top:1px solid #ddd;">
+             <h3>📤 匯入行程資料 (JSON)</h3>
+             <details>
+                <summary style="cursor:pointer; color:#7f8c8d;">點擊展開 JSON 貼上區</summary>
+                <textarea id="importJsonInput" style="width:100%; height:150px; margin-top:10px; padding:10px; border:1px solid #ccc; font-family:monospace;" placeholder='請在此貼上完整的 JSON'></textarea>
+                <button class="btn btn-primary" style="margin-top:10px;" onclick="importTripFromJson()">確認匯入</button>
+             </details>
         </div>
     </div>
 </div>
@@ -133,7 +129,6 @@
         <div style="display:flex; align-items:center; gap:10px;">
             <button class="btn" onclick="backToDashboard()">← 返回</button>
             <span id="projectTitle" contenteditable="false" onblur="saveTitle()" style="font-weight:bold; font-size:1.2rem;">未命名行程</span>
-            <span id="saveStatus" style="font-size:0.8rem;"></span>
         </div>
         <div class="controls">
             <button class="btn" onclick="renameTripId()" title="自訂行程 ID">🆔 改ID</button>
@@ -147,7 +142,6 @@
 </div>
 
 <script type="module">
-    // ★ 引入 signInAnonymously
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, push, onValue, get, child, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithPopup, signInAnonymously, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -170,18 +164,14 @@
     
     let currentUser = null;
     let currentTripId = null;
-    
-    // 狀態變數 (Undo/Redo/唯讀)
     let isReadOnly = true; 
     let currentDataState = ""; 
     let historyStack = [];
     let redoStack = [];
 
-    // --- 全域掛載 ---
+    // 掛載全域函式
     window.loginWithGoogle = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e=>alert(e.message));
-    // ★ 新增：匿名登入
     window.loginAnonymously = () => signInAnonymously(auth).catch(e=>alert(e.message));
-    
     window.logout = () => signOut(auth).then(()=>location.reload());
     window.createTrip = createTrip;
     window.joinTrip = joinTrip;
@@ -189,52 +179,55 @@
     window.backToDashboard = () => { currentTripId = null; showScreen('dashboardScreen'); };
     window.copyTripId = () => navigator.clipboard.writeText(currentTripId).then(()=>alert("已複製 ID: " + currentTripId));
     window.copyTemplate = copyTemplate;
-    window.renameTripId = renameTripId; 
-    
-    // Board actions
+    window.renameTripId = renameTripId;
     window.toggleEditMode = toggleEditMode;
     window.performUndo = performUndo;
     window.performRedo = performRedo;
     window.saveTitle = () => update(ref(db, `trips/${currentTripId}`), { projectTitle: document.getElementById('projectTitle').innerText });
-    
     window.saveTrigger = saveTrigger;
-
-    // DOM 操作
+    
+    // DOM 操作函式
     window.addDay = () => { if(isReadOnly)return; let d=getDataFromDOM().days; d.push({day:`Day ${d.length+1}`, items:[]}); updateData({days:d}); };
     window.deleteDay = (i) => { if(isReadOnly)return; if(confirm('刪除?')){ let d=getDataFromDOM().days; d.splice(i,1); updateData({days:d}); }};
     window.addCard = (i) => { if(isReadOnly)return; document.querySelectorAll('.card-list')[i].innerHTML += createCardHTML({time:'09:00', title:'新活動', type:'spot'}); saveTrigger(); };
     window.deleteCard = (el) => { if(isReadOnly)return; el.closest('.card').remove(); saveTrigger(); };
     window.updateType = (el,t) => { if(isReadOnly)return; el.closest('.card').className=`card type-${t}`; saveTrigger(); };
     window.addLink = (el) => { if(isReadOnly)return; let u=prompt("網址"); if(u) { el.closest('.card').querySelector('.link-list').innerHTML+=`<div class="link-item"><a href="${u}" target="_blank">🔗 連結</a><span onclick="this.parentElement.remove();saveTrigger()" style="cursor:pointer">×</span></div>`; saveTrigger(); }};
-    window.handleImage = (inp) => { 
-        if(isReadOnly || !inp.files[0]) return;
-        let r=new FileReader();
-        r.onload=e=>{
-            inp.closest('.card').querySelector('.img-preview').innerHTML+=`<div class="img-container"><img src="${e.target.result}"><div class="img-remove" onclick="this.parentElement.remove();saveTrigger()" style="position:absolute;top:0;right:0;background:red;color:white;width:15px;height:15px;font-size:10px;display:flex;justify-content:center;cursor:pointer;">×</div></div>`;
-            saveTrigger();
-        }
-        r.readAsDataURL(inp.files[0]);
+    window.handleImage = (inp) => { if(isReadOnly || !inp.files[0]) return; let r=new FileReader(); r.onload=e=>{ inp.closest('.card').querySelector('.img-preview').innerHTML+=`<div class="img-container"><img src="${e.target.result}"><div class="img-remove" onclick="this.parentElement.remove();saveTrigger()" style="position:absolute;top:0;right:0;background:red;color:white;width:15px;height:15px;font-size:10px;display:flex;justify-content:center;cursor:pointer;">×</div></div>`; saveTrigger(); }; r.readAsDataURL(inp.files[0]); };
+
+    // 匯入 JSON 核心函式
+    window.importTripFromJson = function() {
+        const jsonText = document.getElementById('importJsonInput').value.trim();
+        if (!jsonText) { alert("請先貼上 JSON 資料！"); return; }
+        try {
+            const data = JSON.parse(jsonText);
+            if (!data.days || !Array.isArray(data.days)) { alert("格式錯誤：JSON 必須包含 'days' 陣列！"); return; }
+            if (!data.projectTitle) data.projectTitle = "匯入的行程";
+            
+            document.getElementById('loading').style.display = 'flex';
+            const newRef = push(ref(db, 'trips'));
+            set(newRef, data).then(() => {
+                update(ref(db, `users/${currentUser.uid}/trip_ids`), { [newRef.key]: true }).then(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('importJsonInput').value = '';
+                    alert("匯入成功！");
+                });
+            }).catch(err => { alert("匯入失敗"); console.error(err); document.getElementById('loading').style.display = 'none';});
+        } catch (e) { alert("JSON 格式錯誤！\n" + e.message); }
     };
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
-            // ★ 修改：如果是匿名使用者，user.displayName 會是 null，所以給個預設值
             document.getElementById('welcomeMsg').innerText = `Hi, ${user.displayName || '神秘旅人'}`;
             showScreen('dashboardScreen');
             loadUserTrips();
             loadTemplates();
-        } else {
-            showScreen('loginScreen');
-        }
+        } else { showScreen('loginScreen'); }
     });
 
-    function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
+    function showScreen(id) { document.querySelectorAll('.screen').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
-    // --- Dashboard 邏輯 ---
     function loadUserTrips() {
         onValue(ref(db, `users/${currentUser.uid}/trip_ids`), async (snap) => {
             const list = document.getElementById('tripList');
@@ -243,8 +236,7 @@
             for(let tid in ids) {
                 const tSnap = await get(child(ref(db), `trips/${tid}/projectTitle`));
                 if(tSnap.exists()) {
-                    const card = document.createElement('div');
-                    card.className = 'trip-card';
+                    const card = document.createElement('div'); card.className = 'trip-card';
                     card.innerHTML = `<h3>${tSnap.val()}</h3><p>ID: ${tid}</p>`;
                     card.onclick = () => loadTrip(tid);
                     list.appendChild(card);
@@ -255,25 +247,22 @@
 
     function loadTemplates() {
         onValue(ref(db, 'templates'), (snap) => {
-            const list = document.getElementById('templateList');
-            list.innerHTML = ''; 
+            const list = document.getElementById('templateList'); list.innerHTML = ''; 
             const templates = snap.val() || {};
             for (let tid in templates) {
                 const tpl = templates[tid];
-                const card = document.createElement('div');
-                card.className = 'trip-card template-card';
+                const card = document.createElement('div'); card.className = 'trip-card template-card';
                 card.innerHTML = `<h3>${tpl.projectTitle} <span class="template-badge">公版</span></h3><p>官方推薦</p><button class="btn btn-primary" style="margin-top:10px;" onclick="event.stopPropagation(); copyTemplate('${tid}')">📥 複製</button>`;
                 list.appendChild(card);
             }
         });
     }
 
-    async function copyTemplate(templateId) {
+    async function copyTemplate(tid) {
         if(!confirm("複製此公版行程？")) return;
         document.getElementById('loading').style.display = 'flex';
-        const snap = await get(child(ref(db), `templates/${templateId}`));
-        const data = snap.val();
-        data.projectTitle += " (副本)";
+        const snap = await get(child(ref(db), `templates/${tid}`));
+        const data = snap.val(); data.projectTitle += " (副本)";
         const newRef = push(ref(db, 'trips'));
         await set(newRef, data);
         await update(ref(db, `users/${currentUser.uid}/trip_ids`), { [newRef.key]: true });
@@ -283,207 +272,77 @@
 
     function createTrip() {
         const refNew = push(ref(db, 'trips'));
-        set(refNew, { projectTitle: "新旅程", days: [{day:"Day 1", items:[]}] }).then(() => {
-            update(ref(db, `users/${currentUser.uid}/trip_ids`), { [refNew.key]: true });
-        });
+        set(refNew, { projectTitle: "新旅程", days: [{day:"Day 1", items:[]}] }).then(() => update(ref(db, `users/${currentUser.uid}/trip_ids`), { [refNew.key]: true }));
     }
 
     function joinTrip() {
         const code = document.getElementById('joinCodeInput').value.trim();
         if(!code) return;
         get(child(ref(db), `trips/${code}`)).then(snapshot => {
-             if(snapshot.exists()) {
-                 update(ref(db, `users/${currentUser.uid}/trip_ids`), {[code]:true});
-                 alert("加入成功");
-             } else {
-                 alert("找不到此 ID");
-             }
+             if(snapshot.exists()) { update(ref(db, `users/${currentUser.uid}/trip_ids`), {[code]:true}); alert("加入成功"); } else { alert("找不到此 ID"); }
         });
     }
 
-    // 自訂 ID 功能
     async function renameTripId() {
         if(isReadOnly) { alert("請先切換到編輯模式"); return; }
         const newId = prompt("請輸入新的 ID (只能英文數字):", currentTripId);
         if(!newId || newId === currentTripId) return;
-        
-        if(!/^[a-zA-Z0-9_-]+$/.test(newId)) { alert("ID 只能包含英文、數字、底線或連字號"); return; }
-
+        if(!/^[a-zA-Z0-9_-]+$/.test(newId)) { alert("ID 只能包含英文數字"); return; }
         document.getElementById('loading').style.display = 'flex';
         const checkSnap = await get(child(ref(db), `trips/${newId}`));
-        if(checkSnap.exists()) {
-            document.getElementById('loading').style.display = 'none';
-            alert("這個 ID 已經被別人用過了，換一個吧！");
-            return;
-        }
-
-        const oldRef = ref(db, `trips/${currentTripId}`);
-        const snap = await get(oldRef);
-        const data = snap.val();
-
-        await set(ref(db, `trips/${newId}`), data);
-
-        const userRef = ref(db, `users/${currentUser.uid}/trip_ids`);
-        await update(userRef, { [newId]: true, [currentTripId]: null });
-        await remove(oldRef);
-
-        currentTripId = newId;
-        document.getElementById('loading').style.display = 'none';
-        alert(`修改成功！新的 ID 是: ${newId}`);
-        loadTrip(newId);
+        if(checkSnap.exists()) { document.getElementById('loading').style.display = 'none'; alert("ID 已存在"); return; }
+        const snap = await get(ref(db, `trips/${currentTripId}`));
+        await set(ref(db, `trips/${newId}`), snap.val());
+        await update(ref(db, `users/${currentUser.uid}/trip_ids`), { [newId]: true, [currentTripId]: null });
+        await remove(ref(db, `trips/${currentTripId}`));
+        currentTripId = newId; document.getElementById('loading').style.display = 'none'; alert(`ID 修改為: ${newId}`); loadTrip(newId);
     }
 
-    // --- Board 邏輯 (含 Undo/Redo/唯讀) ---
     function loadTrip(tid) {
-        currentTripId = tid;
-        showScreen('boardScreen');
-        document.getElementById('loading').style.display = 'flex';
-        
-        isReadOnly = true;
-        updateEditModeUI();
-        
-        historyStack = [];
-        redoStack = [];
-        updateUndoButtons();
-
+        currentTripId = tid; showScreen('boardScreen'); document.getElementById('loading').style.display = 'flex';
+        isReadOnly = true; updateEditModeUI(); historyStack = []; redoStack = []; updateUndoButtons();
         onValue(ref(db, `trips/${tid}`), (s) => {
             document.getElementById('loading').style.display = 'none';
-            const d = s.val();
-            if(!d) return;
-
+            const d = s.val(); if(!d) return;
             const jsonStr = JSON.stringify(d);
             if(jsonStr !== currentDataState) {
-                if(!isReadOnly && currentDataState) {
-                     historyStack.push(currentDataState);
-                     updateUndoButtons();
-                }
-                currentDataState = jsonStr;
-                renderBoard(d);
+                if(!isReadOnly && currentDataState) { historyStack.push(currentDataState); updateUndoButtons(); }
+                currentDataState = jsonStr; renderBoard(d);
             }
         });
     }
 
-    function updateData(newDataObj) {
-        update(ref(db, `trips/${currentTripId}`), newDataObj);
-    }
+    function updateData(d) { update(ref(db, `trips/${currentTripId}`), d); }
+    function saveTrigger() { if (isReadOnly) return; setTimeout(() => { const n=getDataFromDOM(); const s=JSON.stringify(n); if(s===currentDataState)return; historyStack.push(currentDataState); if(historyStack.length>20)historyStack.shift(); redoStack=[]; updateUndoButtons(); currentDataState=s; updateData(n); }, 100); }
+    
+    function performUndo() { if(!historyStack.length||isReadOnly)return; redoStack.push(currentDataState); let p=historyStack.pop(); currentDataState=p; let d=JSON.parse(p); renderBoard(d); updateData(d); updateUndoButtons(); }
+    function performRedo() { if(!redoStack.length||isReadOnly)return; historyStack.push(currentDataState); let n=redoStack.pop(); currentDataState=n; let d=JSON.parse(n); renderBoard(d); updateData(d); updateUndoButtons(); }
+    function updateUndoButtons() { document.getElementById('undoBtn').disabled=(!historyStack.length||isReadOnly); document.getElementById('redoBtn').disabled=(!redoStack.length||isReadOnly); }
 
-    function saveTrigger() {
-        if (isReadOnly) return;
-        setTimeout(() => {
-            const newData = getDataFromDOM();
-            const jsonStr = JSON.stringify(newData);
-            if(jsonStr === currentDataState) return;
-
-            historyStack.push(currentDataState);
-            if(historyStack.length > 20) historyStack.shift();
-            redoStack = [];
-            updateUndoButtons();
-
-            currentDataState = jsonStr;
-            updateData(newData);
-        }, 100);
-    }
-
-    function performUndo() {
-        if(historyStack.length === 0 || isReadOnly) return;
-        
-        redoStack.push(currentDataState);
-        const prevState = historyStack.pop();
-        currentDataState = prevState;
-        
-        const data = JSON.parse(prevState);
-        renderBoard(data);
-        updateData(data); 
-        updateUndoButtons();
-    }
-
-    function performRedo() {
-        if(redoStack.length === 0 || isReadOnly) return;
-
-        historyStack.push(currentDataState);
-        const nextState = redoStack.pop();
-        currentDataState = nextState;
-
-        const data = JSON.parse(nextState);
-        renderBoard(data);
-        updateData(data);
-        updateUndoButtons();
-    }
-
-    function updateUndoButtons() {
-        document.getElementById('undoBtn').disabled = (historyStack.length === 0 || isReadOnly);
-        document.getElementById('redoBtn').disabled = (redoStack.length === 0 || isReadOnly);
-    }
-
-    function toggleEditMode() {
-        isReadOnly = !isReadOnly;
-        updateEditModeUI();
-        if(currentDataState) renderBoard(JSON.parse(currentDataState));
-    }
-
-    function updateEditModeUI() {
-        const btn = document.getElementById('toggleEdit');
-        const board = document.getElementById('board');
-        const title = document.getElementById('projectTitle');
-        
-        if (isReadOnly) {
-            btn.innerText = "🔒 唯讀";
-            btn.classList.remove('active');
-            board.classList.add('read-only');
-            title.contentEditable = "false";
-        } else {
-            btn.innerText = "✏️ 編輯";
-            btn.classList.add('active');
-            board.classList.remove('read-only');
-            title.contentEditable = "true";
-        }
-        updateUndoButtons();
-    }
+    function toggleEditMode() { isReadOnly=!isReadOnly; updateEditModeUI(); if(currentDataState) renderBoard(JSON.parse(currentDataState)); }
+    function updateEditModeUI() { const b=document.getElementById('toggleEdit'); const bd=document.getElementById('board'); const t=document.getElementById('projectTitle'); if(isReadOnly){ b.innerText="🔒 唯讀"; b.classList.remove('active'); bd.classList.add('read-only'); t.contentEditable="false"; }else{ b.innerText="✏️ 編輯"; b.classList.add('active'); bd.classList.remove('read-only'); t.contentEditable="true"; } updateUndoButtons(); }
 
     function renderBoard(d) {
         document.getElementById('projectTitle').innerText = d.projectTitle || "未命名";
-        const board = document.getElementById('board');
-        board.innerHTML = '';
+        const board = document.getElementById('board'); board.innerHTML = '';
         (d.days||[]).forEach((day, i) => {
             const col = document.createElement('div'); col.className='column';
-            col.innerHTML = `
-                <div class="column-header"><div class="day-row"><span class="day-title" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${day.day}</span><button class="delete-day-btn" onclick="deleteDay(${i})">×</button></div></div>
-                <div class="card-list"></div>
-                <button class="add-card-btn" style="width:100%; padding:10px; border:2px dashed #ccc; background:transparent;" onclick="addCard(${i})">+ 新增</button>
-            `;
+            col.innerHTML = `<div class="column-header"><div class="day-row"><span class="day-title" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${day.day}</span><button class="delete-day-btn" onclick="deleteDay(${i})">×</button></div></div><div class="card-list"></div><button class="add-card-btn" style="width:100%; padding:10px; border:2px dashed #ccc; background:transparent;" onclick="addCard(${i})">+ 新增</button>`;
             const lst = col.querySelector('.card-list');
             (day.items||[]).forEach(item => lst.innerHTML += createCardHTML(item));
             board.appendChild(col);
             new Sortable(lst, { group:'shared', animation:150, disabled: isReadOnly, onEnd: saveTrigger });
         });
-        
-        const addDayCol = document.createElement('div');
-        addDayCol.className = 'add-day-column';
-        addDayCol.style.minWidth = '60px';
-        addDayCol.style.paddingTop = '10px';
+        const addDayCol = document.createElement('div'); addDayCol.className = 'add-day-column'; addDayCol.style.minWidth = '60px'; addDayCol.style.paddingTop = '10px';
         addDayCol.innerHTML = `<button style="width:50px; height:50px; border-radius:50%; border:2px dashed #bdc3c7; color:#7f8c8d; font-size:24px; cursor:pointer; background:rgba(255,255,255,0.5);" onclick="addDay()">+</button>`;
-        if(isReadOnly) addDayCol.style.display = 'none';
-        board.appendChild(addDayCol);
-
-        if(isReadOnly) board.classList.add('read-only');
-        else board.classList.remove('read-only');
+        if(isReadOnly) addDayCol.style.display = 'none'; board.appendChild(addDayCol);
+        if(isReadOnly) board.classList.add('read-only'); else board.classList.remove('read-only');
     }
 
     function createCardHTML(item) {
         let links = (item.links||[]).map(l=>`<div class="link-item"><a href="${l}" target="_blank">🔗 連結</a><span onclick="this.parentElement.remove();saveTrigger()" style="cursor:pointer" class="link-remove">×</span></div>`).join('');
         let imgs = (item.images||[]).map(s=>`<div class="img-container"><img src="${s}"><div class="img-remove" onclick="this.parentElement.remove();saveTrigger()" style="position:absolute;top:0;right:0;background:red;color:white;width:15px;height:15px;font-size:10px;display:flex;justify-content:center;cursor:pointer;">×</div></div>`).join('');
-        
-        return `<div class="card type-${item.type||'spot'}">
-            <div class="card-header"><span class="time" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${item.time}</span><div class="card-actions"><span onclick="updateType(this,'spot')">景</span><span onclick="updateType(this,'food')">食</span><span onclick="updateType(this,'travel')">行</span><span onclick="deleteCard(this)">🗑️</span></div></div>
-            <div contenteditable="${!isReadOnly}" onblur="saveTrigger()" style="font-weight:bold">${item.title}</div>
-            <div style="font-size:0.85rem; color:#666;" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${item.desc||''}</div>
-            <div class="link-list">${links}</div>
-            <div class="img-preview">${imgs}</div>
-            <div class="card-actions" style="margin-top:5px; justify-content:flex-end; display:flex; gap:10px;">
-                <span onclick="addLink(this)">🔗</span>
-                <label>📷<input type="file" style="display:none" accept="image/*" onchange="handleImage(this)"></label>
-            </div>
-        </div>`;
+        return `<div class="card type-${item.type||'spot'}"><div class="card-header"><span class="time" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${item.time}</span><div class="card-actions"><span onclick="updateType(this,'spot')">景</span><span onclick="updateType(this,'food')">食</span><span onclick="updateType(this,'travel')">行</span><span onclick="deleteCard(this)">🗑️</span></div></div><div contenteditable="${!isReadOnly}" onblur="saveTrigger()" style="font-weight:bold">${item.title}</div><div style="font-size:0.85rem; color:#666;" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${item.desc||''}</div><div class="link-list">${links}</div><div class="img-preview">${imgs}</div><div class="card-actions" style="margin-top:5px; justify-content:flex-end; display:flex; gap:10px;"><span onclick="addLink(this)">🔗</span><label>📷<input type="file" style="display:none" accept="image/*" onchange="handleImage(this)"></label></div></div>`;
     }
     
     function getDataFromDOM() {
@@ -493,14 +352,7 @@
             col.querySelectorAll('.card').forEach(c => {
                 let links=[]; c.querySelectorAll('.link-item a').forEach(a=>links.push(a.href));
                 let imgs=[]; c.querySelectorAll('.img-preview img').forEach(i=>imgs.push(i.src));
-                items.push({
-                    time: c.querySelector('.time').innerText,
-                    title: c.children[1].innerText,
-                    desc: c.children[2].innerText,
-                    type: c.classList.contains('type-food')?'food':(c.classList.contains('type-travel')?'travel':'spot'),
-                    links: links,
-                    images: imgs
-                });
+                items.push({ time: c.querySelector('.time').innerText, title: c.children[1].innerText, desc: c.children[2].innerText, type: c.classList.contains('type-food')?'food':(c.classList.contains('type-travel')?'travel':'spot'), links: links, images: imgs });
             });
             days.push({ day: col.querySelector('.day-title').innerText, items: items });
         });
@@ -509,4 +361,3 @@
 </script>
 </body>
 </html>
-
