@@ -3,127 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>旅程規劃大師 Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title> ✈️旅程規劃大師 </title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
-        :root { --primary: #2c3e50; --secondary: #34495e; --accent: #e74c3c; --bg: #ecf0f1; --card-bg: #ffffff; --column-width: 350px; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: #2c3e50; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
+        :root {
+            --primary: #1B1F3B; /* 深藍奢華 */
+            --secondary: #BFA15F; /* 金色點綴 */
+            --bg: #F5F5F7;
+            --text: #2c3e50;
+            --card-bg: #ffffff;
+            --column-width: 380px;
+        }
         
-        .btn { background: var(--secondary); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
-        .btn:hover { background: var(--primary); }
-        .btn-primary { background: var(--accent); }
-        .btn-outline { background: transparent; border: 1px solid var(--secondary); color: var(--secondary); }
-        .btn-outline:hover { background: var(--secondary); color: white; }
+        * { box-sizing: border-box; outline: none; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; margin: 0; }
 
+        /* 通用按鈕 */
+        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; }
+        .btn:hover { background: #2c3e50; transform: translateY(-1px); }
+        .btn-gold { background: var(--secondary); color: #1B1F3B; font-weight: bold; }
+        .btn-gold:hover { background: #d4b46e; }
+        .btn-outline { background: transparent; border: 1px solid var(--secondary); color: var(--secondary); }
+        .btn-danger { background: #e74c3c; }
+
+        /* 畫面切換 */
         .screen { display: none; height: 100%; flex-direction: column; }
         .screen.active { display: flex; }
 
-        /* Login */
-        #loginScreen { justify-content: center; align-items: center; background: linear-gradient(135deg, #2c3e50, #4ca1af); color: white; }
-        .login-box { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 12px; backdrop-filter: blur(10px); text-align: center; width: 300px; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); }
-        
-        /* Dashboard */
-        #dashboardScreen { padding: 40px; overflow-y: auto; }
-        .dashboard-container { max-width: 1000px; margin: 0 auto; width: 100%; }
-        
-        .section-title { font-size: 1.5rem; font-weight: bold; margin: 30px 0 15px; border-left: 5px solid var(--accent); padding-left: 10px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .trip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .trip-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; position: relative; border-top: 5px solid var(--secondary); }
-        .trip-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .trip-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; }
-        .trip-card .meta { font-size: 0.85rem; color: #7f8c8d; }
-        .trip-card .actions { margin-top: 15px; display: flex; gap: 10px; }
+        /* 登入畫面 */
+        #loginScreen { justify-content: center; align-items: center; background: linear-gradient(135deg, #1B1F3B 0%, #0d1117 100%); color: white; }
+        .login-box { background: rgba(255,255,255,0.05); padding: 50px; border-radius: 16px; backdrop-filter: blur(20px); text-align: center; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.3); max-width: 400px; width: 90%; }
+        .login-box h1 { font-size: 2rem; margin-bottom: 10px; color: var(--secondary); }
+        .login-box p { color: #a0a0a0; margin-bottom: 30px; }
 
-        /* Board */
-        header { background-color: white; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; height: 60px;}
-        .board-container { flex: 1; overflow-x: auto; padding: 30px; display: flex; gap: 25px; align-items: flex-start; height: calc(100vh - 80px); box-sizing: border-box; }
+        /* 儀表板 */
+        #dashboardScreen { background: #f0f2f5; }
+        .dashboard-header { background: white; padding: 20px 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .dashboard-content { flex: 1; padding: 40px; overflow-y: auto; max-width: 1200px; margin: 0 auto; width: 100%; }
         
-        /* Sortable Columns */
-        .column { background: #dfe6e9; min-width: var(--column-width); width: var(--column-width); border-radius: 12px; display: flex; flex-direction: column; max-height: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: background 0.2s; }
-        .column.sortable-ghost { opacity: 0.5; background: #b2bec3; }
+        .action-bar { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+        .join-box { display: flex; gap: 10px; background: white; padding: 5px; border-radius: 6px; border: 1px solid #ddd; }
+        .join-box input { border: none; padding: 8px; width: 200px; }
+
+        .trip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .trip-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; border-top: 4px solid var(--secondary); position: relative; }
+        .trip-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .trip-card h3 { font-size: 1.2rem; margin-bottom: 10px; color: var(--primary); }
+        .trip-card p { font-size: 0.85rem; color: #666; }
+        .trip-id-tag { position: absolute; top: 10px; right: 10px; background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: #888; font-family: monospace; }
+
+        /* 看板 (Board) */
+        #boardScreen { background: #E3E9EE; }
+        header { background: white; padding: 0 20px; height: 60px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 10; }
+        .board-title { font-size: 1.2rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         
-        .column-header { padding: 15px 20px; font-weight: bold; background: #b2bec3; color: #2d3436; border-radius: 12px 12px 0 0; cursor: grab; display: flex; justify-content: space-between; align-items: center; }
-        .column-header:active { cursor: grabbing; }
+        .board-container { flex: 1; overflow-x: auto; overflow-y: hidden; padding: 20px; display: flex; gap: 20px; align-items: flex-start; }
         
+        .column { background: #F4F5F7; min-width: var(--column-width); width: var(--column-width); border-radius: 10px; display: flex; flex-direction: column; max-height: calc(100vh - 100px); flex-shrink: 0; border: 1px solid #dfe1e6; }
+        .column-header { padding: 15px; font-weight: bold; color: var(--primary); background: #ebecf0; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; }
         .card-list { padding: 10px; overflow-y: auto; flex: 1; min-height: 50px; }
-        .card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 4px solid #bdc3c7; cursor: grab; }
-        .card:hover { background: #fdfdfd; }
+        
+        /* 卡片設計 */
+        .card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; border-left: 4px solid transparent; transition: 0.2s; position: relative; group; }
+        .card:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
         .card.type-travel { border-left-color: #3498db; }
         .card.type-food { border-left-color: #e67e22; }
         .card.type-spot { border-left-color: #27ae60; }
+        .card.type-stay { border-left-color: #9b59b6; }
+
+        .card-time { font-size: 0.85rem; font-weight: bold; color: var(--secondary); font-family: monospace; display: block; margin-bottom: 4px; }
+        .card-title { font-weight: 600; font-size: 1rem; margin-bottom: 6px; color: #2c3e50; }
+        .card-desc { font-size: 0.85rem; color: #555; line-height: 1.5; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-img { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; margin-top: 8px; display: none; }
+        .card-img.show { display: block; }
         
-        .time { font-weight: 800; color: #2c3e50; font-family: monospace; font-size: 1.1em; display: inline-block; min-width: 50px; }
-        .link-btn { display: inline-block; margin-top: 8px; font-size: 0.8rem; text-decoration: none; color: #3498db; border: 1px solid #3498db; padding: 2px 8px; border-radius: 10px; }
-        .link-btn:hover { background: #3498db; color: white; }
+        /* 編輯 Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; padding: 30px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .modal h2 { margin-bottom: 20px; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; color: #666; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; }
+        .form-group textarea { height: 100px; resize: vertical; }
+        
+        .image-preview { width: 100%; height: 150px; background: #eee; margin-top: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 4px; border: 1px dashed #ccc; color: #999; }
+        .image-preview img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Import Area */
-        #importArea { display: none; background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        textarea { width: 100%; height: 100px; margin-bottom: 10px; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-family: monospace; }
-        .input-group { margin-bottom: 10px; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .input-group input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;}
+        /* 匯入區域 */
+        #importArea { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1001; width: 600px; }
+        #importArea textarea { width: 100%; height: 200px; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; font-family: monospace; font-size: 0.8rem; }
 
-        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: none; justify-content: center; align-items: center; font-weight: bold; color: var(--primary); }
+        /* 載入動畫 */
+        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: none; justify-content: center; align-items: center; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--secondary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 手機 RWD */
+        @media (max-width: 768px) {
+            .board-container { flex-direction: column; height: auto; overflow-y: auto; }
+            .column { width: 100%; max-height: none; }
+            .modal { width: 95%; }
+        }
     </style>
 </head>
 <body>
 
-<div id="loading">載入中...</div>
+<div id="loading"><div class="spinner"></div></div>
 
 <div id="loginScreen" class="screen active">
     <div class="login-box">
-        <h1 style="margin-bottom:10px;">🇯🇵 旅程規劃大師</h1>
-        <p style="font-size:0.9rem; margin-bottom:30px; opacity:0.8;">拖曳排序・官方模板・即時雲端</p>
-        <button class="btn btn-primary" style="width:100%; padding:12px;" onclick="loginAnonymously()">開始使用</button>
+        <h1>Travel Planner</h1>
+        <p> CC 嘻嘻哈哈出去玩 ✈️ </p>
+        <button class="btn btn-gold" style="width:100%; justify-content: center; padding: 15px;" onclick="loginAnonymously()">
+            <i class="fas fa-user-secret"></i> 訪客登入 (開始規劃)
+        </button>
     </div>
 </div>
 
 <div id="dashboardScreen" class="screen">
-    <div class="dashboard-container">
-        
-        <div class="section-title">
-            <span>🏆 官方推薦行程</span>
+    <div class="dashboard-header">
+        <h2><i class="fas fa-compass"></i> 我的行程 </h2>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span id="userIdDisplay" style="font-size:0.8rem; color:#888;"></span>
+            <button class="btn btn-outline" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 登出</button>
         </div>
-        <div id="officialList" class="trip-grid"></div>
-
-        <div class="section-title">
-            <span>📂 我的行程</span>
-            <button class="btn btn-outline" onclick="toggleImport()">+ 匯入/新增</button>
-        </div>
-
-        <div id="importArea">
-            <div class="input-group">
-                <label>行程 ID (選填，若空白則自動產生)</label>
-                <input type="text" id="importId" placeholder="例如：japan-2026-family">
+    </div>
+    <div class="dashboard-content">
+        <div class="action-bar">
+            <button class="btn" onclick="createNewTrip()"><i class="fas fa-plus"></i> 新增空白行程</button>
+            <button class="btn btn-gold" onclick="toggleImport()"><i class="fas fa-file-import"></i> 匯入 JSON</button>
+            <div class="join-box">
+                <input type="text" id="joinIdInput" placeholder="輸入朋友的行程 ID">
+                <button class="btn" style="padding: 5px 15px;" onclick="joinTrip()"><i class="fas fa-user-plus"></i> 加入</button>
             </div>
-            <div class="input-group">
-                <label>JSON 資料</label>
-                <textarea id="jsonInput" placeholder="請在此貼上 JSON 代碼"></textarea>
-            </div>
-            <button class="btn btn-primary" onclick="importTrip()">確認匯入</button>
         </div>
 
-        <div id="tripList" class="trip-grid"></div>
+        <div id="tripList" class="trip-grid">
+            </div>
     </div>
 </div>
 
 <div id="boardScreen" class="screen">
     <header>
-        <div style="display:flex; align-items:center; gap:15px;">
-            <button class="btn" onclick="showScreen('dashboardScreen')">← 返回</button>
-            <h2 id="projectTitle" style="margin:0; font-size:1.2rem;">行程表</h2>
+        <div class="board-title">
+            <button class="btn btn-outline" onclick="showScreen('dashboardScreen')" style="padding: 5px 10px; font-size: 0.8rem;"><i class="fas fa-arrow-left"></i></button>
+            <span id="currentProjectTitle">旅程標題</span>
         </div>
-        <div style="font-size:0.8rem; color:#7f8c8d;">💡 按住標題可拖曳天數排序</div>
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-gold" onclick="shareTrip()"><i class="fas fa-share-alt"></i> 複製 ID 分享</button>
+            </div>
     </header>
-    <div class="board-container" id="board"></div>
+    <div class="board-container" id="board">
+        </div>
+</div>
+
+<div id="importArea">
+    <h3>匯入行程 JSON</h3>
+    <textarea id="jsonInput" placeholder="請在此貼上 JSON 代碼"></textarea>
+    <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn btn-outline" onclick="toggleImport()">取消</button>
+        <button class="btn" onclick="importTripConfirm()">確認匯入</button>
+    </div>
+</div>
+
+<div id="cardModal" class="modal-overlay">
+    <div class="modal">
+        <h2>編輯行程</h2>
+        <div class="form-group">
+            <label>類型</label>
+            <select id="editType">
+                <option value="travel">交通 (Travel)</option>
+                <option value="food">美食 (Food)</option>
+                <option value="spot">景點 (Spot)</option>
+                <option value="stay">住宿 (Stay)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>時間</label>
+            <input type="text" id="editTime" placeholder="例如：13:00">
+        </div>
+        <div class="form-group">
+            <label>標題</label>
+            <input type="text" id="editTitle" placeholder="行程標題">
+        </div>
+        <div class="form-group">
+            <label>詳細描述 (支援 HTML)</label>
+            <textarea id="editDesc" placeholder="輸入詳細資訊..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>相關連結 (URL)</label>
+            <input type="text" id="editLink" placeholder="https://...">
+        </div>
+        <div class="form-group">
+            <label>圖片 (上傳檔案 或 貼上網址)</label>
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <input type="text" id="editImgUrl" placeholder="圖片網址..." onchange="previewImage(this.value)">
+                <label for="editImgFile" class="btn btn-outline" style="margin:0; width:auto; cursor:pointer;"><i class="fas fa-upload"></i></label>
+                <input type="file" id="editImgFile" accept="image/*" style="display:none;" onchange="handleFileUpload(this)">
+            </div>
+            <div class="image-preview" id="imgPreviewBox">
+                <span>預覽圖片</span>
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:20px;">
+            <button class="btn btn-danger" onclick="deleteCard()"><i class="fas fa-trash"></i> 刪除</button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-outline" onclick="closeModal()">取消</button>
+                <button class="btn" onclick="saveCard()"><i class="fas fa-check"></i> 儲存</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, push, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getDatabase, ref, set, push, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     // ★★★ 請替換成您的 Firebase Config ★★★
     const firebaseConfig = {
@@ -137,263 +238,340 @@
           measurementId: "G-C28PN16XJY"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app);
-    let uid = null;
+    // 初始化 Firebase
+    let app, db, auth, uid;
+    try {
+        app = initializeApp(firebaseConfig);
+        db = getDatabase(app);
+        auth = getAuth(app);
+    } catch(e) { console.error(e); alert("請設定 Firebase Config"); }
+
     let currentTripId = null;
-    let currentTripData = null;
+    let currentCardId = null;
+    let currentDayIndex = null;
+    let localTripData = {}; 
 
-    // 官方行程資料 (Westin/湯元館/Ritz 頂級版)
-    const OFFICIAL_TRIPS = [
-        {
-            id: 'official_japan_lux_2026',
-            title: '🇯🇵 2026 頂級名宿・雙日滑雪 (官方推薦)',
-            desc: 'Westin京都、琵琶湖湯元館、福岡Ritz Carlton。含雙日滑雪與全熟食安排。',
-            data: {
-              "projectTitle": "🇯🇵 2026 頂級名宿・雙日滑雪 (Westin/湯元館/Ritz)",
-              "days": [
-                {
-                  "day": "Day 1", "title": "福岡直衝京都・入住 Westin",
-                  "items": [
-                    { "time": "11:15", "title": "抵達福岡機場", "desc": "專車/計程車直達博多站。", "type": "travel" },
-                    { "time": "13:00", "title": "新幹線 ➜ 京都", "desc": "Nozomi Green Car。", "type": "travel" },
-                    { "time": "16:00", "title": "入住：The Westin Miyako", "desc": "京都最大級 SPA 華頂。", "type": "travel" }
-                  ]
-                },
-                {
-                  "day": "Day 2", "title": "京都小眾禪意・SPA",
-                  "items": [
-                    { "time": "10:30", "title": "青蓮院門跡", "desc": "坐著賞庭園，無需走路。", "type": "spot" },
-                    { "time": "12:30", "title": "午餐：南禪寺 順正", "desc": "湯豆腐名店。", "type": "food" },
-                    { "time": "18:30", "title": "晚餐：天婦羅 京星", "desc": "米其林一星，全熟食。", "type": "food" }
-                  ]
-                },
-                {
-                  "day": "Day 3", "title": "近江八幡水鄉 ➜ 湯元館",
-                  "items": [
-                    { "time": "11:00", "title": "八幡堀・手搖船", "desc": "搭船遊覽古運河。", "type": "spot" },
-                    { "time": "16:00", "title": "入住：湯元館", "desc": "擁有7種溫泉池。", "type": "travel" }
-                  ]
-                },
-                {
-                  "day": "Day 4", "title": "滑雪 Day 1",
-                  "items": [
-                    { "time": "10:00", "title": "私人教練滑雪", "desc": "琵琶湖 Valley 一對一教學。", "type": "spot" },
-                    { "time": "16:00", "title": "回湯元館泡湯", "desc": "修復肌肉。", "type": "travel" }
-                  ]
-                },
-                {
-                  "day": "Day 5", "title": "滑雪 Day 2 ➜ 福岡 Ritz",
-                  "items": [
-                    { "time": "09:00", "title": "半日滑雪", "desc": "最後雪地時光。", "type": "spot" },
-                    { "time": "13:30", "title": "移動回福岡", "desc": "新幹線 Green Car。", "type": "travel" },
-                    { "time": "17:00", "title": "入住：Ritz Carlton", "desc": "福岡最頂級奢華。", "type": "travel" }
-                  ]
-                },
-                {
-                  "day": "Day 6", "title": "早起 ➜ 機場",
-                  "items": [
-                    { "time": "08:15", "title": "前往機場", "desc": "計程車 20 分鐘。", "type": "travel" },
-                    { "time": "11:15", "title": "起飛", "desc": "返台。", "type": "travel" }
-                  ]
-                }
-              ]
-            }
-        }
-    ];
+    // 狀態管理
+    const showLoading = (show) => document.getElementById('loading').style.display = show ? 'flex' : 'none';
+    window.showScreen = (id) => {
+        document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    };
 
-    // 核心功能
+    // 1. 認證
     window.loginAnonymously = () => {
-        document.getElementById('loading').style.display = 'flex';
-        signInAnonymously(auth).catch(e => alert(e.message));
+        showLoading(true);
+        signInAnonymously(auth).catch(e => { alert(e.message); showLoading(false); });
     };
-    
-    window.showScreen = (id) => { 
-        document.querySelectorAll('.screen').forEach(e => e.classList.remove('active')); 
-        document.getElementById(id).classList.add('active'); 
-    };
-
-    window.toggleImport = () => { 
-        const el = document.getElementById('importArea'); 
-        el.style.display = el.style.display === 'block' ? 'none' : 'block'; 
-    };
+    window.logout = () => signOut(auth).then(() => window.location.reload());
 
     onAuthStateChanged(auth, user => {
-        document.getElementById('loading').style.display = 'none';
-        if (user) { 
-            uid = user.uid; 
-            showScreen('dashboardScreen'); 
-            loadUserTrips(); 
-            renderOfficialTrips();
+        showLoading(false);
+        if (user) {
+            uid = user.uid;
+            document.getElementById('userIdDisplay').innerText = `ID: ${uid.substring(0,6)}...`;
+            showScreen('dashboardScreen');
+            loadUserTrips();
+        } else {
+            showScreen('loginScreen');
         }
     });
 
-    // 1. 渲染官方行程
-    function renderOfficialTrips() {
-        const list = document.getElementById('officialList');
-        list.innerHTML = '';
-        OFFICIAL_TRIPS.forEach(trip => {
-            const div = document.createElement('div');
-            div.className = 'trip-card';
-            div.style.borderTopColor = '#e74c3c'; // 紅色強調
-            div.innerHTML = `
-                <h3>${trip.title}</h3>
-                <div class="meta">${trip.desc}</div>
-                <div class="actions">
-                    <button class="btn btn-outline" style="width:100%" onclick="saveOfficialTrip('${trip.id}')">📥 另存為我的行程</button>
-                </div>
-            `;
-            list.appendChild(div);
-        });
-    }
-
-    // 2. 另存官方行程邏輯
-    window.saveOfficialTrip = (officialId) => {
-        const trip = OFFICIAL_TRIPS.find(t => t.id === officialId);
-        if(!trip) return;
-        
-        const newTitle = prompt("請為這個行程命名：", trip.title);
-        if(!newTitle) return;
-
-        const newTripData = JSON.parse(JSON.stringify(trip.data)); // Deep copy
-        newTripData.projectTitle = newTitle;
-
-        const newRef = push(ref(db, `users/${uid}/trips`));
-        set(newRef, { title: newTitle, data: newTripData }).then(() => {
-            alert("已成功儲存到您的行程列表！");
-            loadUserTrips();
-        });
-    };
-
-    // 3. 載入使用者行程
+    // 2. 儀表板：載入行程列表
     function loadUserTrips() {
-        onValue(ref(db, `users/${uid}/trips`), snap => {
-            const list = document.getElementById('tripList'); 
+        // 監聽使用者的行程清單
+        const userTripsRef = ref(db, `users/${uid}/trips`);
+        onValue(userTripsRef, (snapshot) => {
+            const list = document.getElementById('tripList');
             list.innerHTML = '';
-            const data = snap.val() || {};
+            const tripIds = snapshot.val() || {};
             
-            if(Object.keys(data).length === 0) {
-                list.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999;">您還沒有行程，請匯入或從官方推薦新增。</div>';
-                return;
-            }
-
-            Object.keys(data).forEach(key => {
-                const div = document.createElement('div'); 
-                div.className = 'trip-card';
-                div.innerHTML = `
-                    <h3>${data[key].title}</h3>
-                    <div class="meta">ID: ${key}</div>
-                    <div class="actions">
-                        <button class="btn btn-primary" style="flex:1" onclick="loadBoard('${key}')">編輯/查看</button>
-                    </div>
-                `;
-                list.appendChild(div);
+            Object.keys(tripIds).forEach(tripId => {
+                // 讀取實際行程資料 (Metadata)
+                const tripRef = ref(db, `trips/${tripId}/metadata`);
+                onValue(tripRef, (snap) => {
+                    const meta = snap.val();
+                    if(!meta) return; // 可能已被刪除
+                    
+                    // 避免重複渲染 (簡單處理)
+                    let card = document.getElementById(`trip-card-${tripId}`);
+                    if(!card) {
+                        card = document.createElement('div');
+                        card.id = `trip-card-${tripId}`;
+                        card.className = 'trip-card';
+                        list.appendChild(card);
+                    }
+                    
+                    card.innerHTML = `
+                        <span class="trip-id-tag">ID: ${tripId}</span>
+                        <h3>${meta.title}</h3>
+                        <p><i class="fas fa-clock"></i> 上次更新: ${new Date().toLocaleDateString()}</p>
+                    `;
+                    card.onclick = () => openTrip(tripId);
+                });
             });
         });
     }
 
-    // 4. 匯入行程 (含自訂 ID)
-    window.importTrip = () => {
-        try {
-            const jsonText = document.getElementById('jsonInput').value;
-            if(!jsonText) return alert("請輸入 JSON");
-            
-            const data = JSON.parse(jsonText);
-            const customId = document.getElementById('importId').value.trim();
-
-            // 如果有自訂 ID，使用 child(ID).set()，否則用 push()
-            if (customId) {
-                const customRef = ref(db, `users/${uid}/trips/${customId}`);
-                // 檢查是否已存在 (非必要，看您是否想覆蓋)
-                get(customRef).then((snapshot) => {
-                    if (snapshot.exists() && !confirm("此 ID 已存在，確定要覆蓋嗎？")) {
-                        return;
-                    }
-                    set(customRef, { title: data.projectTitle, data: data }).then(afterImport);
-                });
-            } else {
-                const newRef = push(ref(db, `users/${uid}/trips`));
-                set(newRef, { title: data.projectTitle, data: data }).then(afterImport);
-            }
-        } catch (e) { alert('JSON 格式錯誤：' + e); }
+    // 3. 建立與匯入
+    window.createNewTrip = () => {
+        const title = prompt("請輸入行程名稱", "我的新行程");
+        if(!title) return;
+        const newTripRef = push(ref(db, 'trips'));
+        const tripId = newTripRef.key;
+        
+        const initialData = {
+            metadata: { title: title, owner: uid },
+            days: [ { day: "Day 1", title: "第一天", items: [] } ] // 預設一天
+        };
+        
+        set(newTripRef, initialData).then(() => {
+            // 綁定到使用者
+            update(ref(db, `users/${uid}/trips`), { [tripId]: true });
+        });
     };
 
-    function afterImport() {
-        document.getElementById('importArea').style.display = 'none';
-        document.getElementById('jsonInput').value = '';
-        document.getElementById('importId').value = '';
-        alert('匯入成功！');
+    window.toggleImport = () => {
+        const el = document.getElementById('importArea');
+        el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    };
+
+    window.importTripConfirm = () => {
+        try {
+            const json = document.getElementById('jsonInput').value;
+            const data = JSON.parse(json);
+            const newTripRef = push(ref(db, 'trips'));
+            const tripId = newTripRef.key;
+
+            const formattedData = {
+                metadata: { title: data.projectTitle, owner: uid },
+                days: data.days || []
+            };
+
+            set(newTripRef, formattedData).then(() => {
+                update(ref(db, `users/${uid}/trips`), { [tripId]: true });
+                toggleImport();
+                document.getElementById('jsonInput').value = '';
+                alert("匯入成功！");
+            });
+        } catch(e) { alert("JSON 格式錯誤"); console.error(e); }
+    };
+
+    window.joinTrip = () => {
+        const joinId = document.getElementById('joinIdInput').value.trim();
+        if(!joinId) return;
+        // 檢查該 ID 是否存在
+        get(ref(db, `trips/${joinId}`)).then(snap => {
+            if(snap.exists()) {
+                update(ref(db, `users/${uid}/trips`), { [joinId]: true });
+                alert("成功加入行程！");
+            } else {
+                alert("找不到該行程 ID");
+            }
+        });
+    };
+
+    // 4. 開啟行程 (Board)
+    function openTrip(tripId) {
+        currentTripId = tripId;
+        showScreen('boardScreen');
+        showLoading(true);
+
+        const tripRef = ref(db, `trips/${tripId}`);
+        // 實時監聽整個行程資料
+        onValue(tripRef, (snap) => {
+            localTripData = snap.val();
+            renderBoard();
+            showLoading(false);
+        });
     }
 
-    // 5. 載入看板 (含 Column 拖曳功能)
-    window.loadBoard = (key) => {
-        currentTripId = key;
-        const board = document.getElementById('board'); 
+    function renderBoard() {
+        if(!localTripData) return;
+        document.getElementById('currentProjectTitle').innerText = localTripData.metadata.title;
+        const board = document.getElementById('board');
         board.innerHTML = '';
-        showScreen('boardScreen');
 
-        // 監聽資料變化
-        onValue(ref(db, `users/${uid}/trips/${key}`), snap => {
-            const trip = snap.val();
-            if(!trip) return;
+        (localTripData.days || []).forEach((day, dIndex) => {
+            const col = document.createElement('div');
+            col.className = 'column';
+            col.innerHTML = `
+                <div class="column-header">
+                    <span>${day.day} - ${day.title}</span>
+                    <button class="btn-outline" onclick="addCard(${dIndex})" style="padding:2px 8px; font-size:0.8rem;">+</button>
+                </div>
+                <div class="card-list" id="col-${dIndex}"></div>
+            `;
+            board.appendChild(col);
+
+            const listEl = col.querySelector('.card-list');
             
-            currentTripData = trip.data; // 保持本地資料同步
-            document.getElementById('projectTitle').innerText = trip.title;
-            board.innerHTML = ''; // 清空重繪
+            // 渲染卡片
+            (day.items || []).forEach((item, cIndex) => {
+                // 處理連結
+                let linkHtml = '';
+                if(item.links && item.links.length > 0) {
+                   // 舊版是 array，新版可能只是 string，兼容一下
+                   const url = Array.isArray(item.links) ? item.links[0] : item.links;
+                   if(url) linkHtml = `<a href="${url}" target="_blank" onclick="event.stopPropagation()" style="color:#3498db; font-size:0.8rem; display:block; margin-top:5px;"><i class="fas fa-external-link-alt"></i> 相關連結</a>`;
+                }
 
-            // 繪製每一天 (Column)
-            currentTripData.days.forEach((day, index) => {
-                const col = document.createElement('div'); 
-                col.className = 'column';
-                col.setAttribute('data-day-index', index); // 儲存索引以便排序
+                // 處理圖片
+                let imgHtml = '';
+                if(item.image) {
+                    imgHtml = `<img src="${item.image}" class="card-img show">`;
+                }
 
-                let cardsHtml = '';
-                (day.items || []).forEach(item => {
-                    let links = (item.links||[]).map(l => `<a href="${l}" target="_blank" class="link-btn">連結</a>`).join('');
-                    cardsHtml += `<div class="card type-${item.type}">
-                        <div style="display:flex; justify-content:space-between;"><span class="time">${item.time}</span></div>
-                        <div style="font-weight:bold; margin:5px 0;">${item.title}</div>
-                        <div style="color:#636e72; font-size:0.9rem; line-height:1.4;">${item.desc}</div>
-                        ${links ? `<div style="margin-top:5px;">${links}</div>` : ''}
-                    </div>`;
-                });
-                
-                // Header (Handle for dragging)
-                col.innerHTML = `
-                    <div class="column-header" title="按住這裡拖曳排序">
-                        <span>${day.day} - ${day.title}</span>
-                        <span style="cursor:grab">☰</span>
-                    </div>
-                    <div class="card-list">${cardsHtml}</div>
+                const card = document.createElement('div');
+                card.className = `card type-${item.type || 'spot'}`;
+                card.innerHTML = `
+                    <span class="card-time">${item.time || '--:--'}</span>
+                    <div class="card-title">${item.title}</div>
+                    <div class="card-desc">${item.desc || ''}</div>
+                    ${imgHtml}
+                    ${linkHtml}
                 `;
-                board.appendChild(col);
+                card.onclick = () => openEditModal(dIndex, cIndex, item);
+                listEl.appendChild(card);
             });
 
-            // ★★★ 啟用 Column 拖曳 (天數排序) ★★★
-            new Sortable(board, {
+            // SortableJS 拖拉設定
+            new Sortable(listEl, {
+                group: 'shared',
                 animation: 150,
-                handle: '.column-header', // 只能抓標題來拖曳
-                ghostClass: 'sortable-ghost',
                 onEnd: function (evt) {
-                    // 更新本地陣列順序
-                    const oldIndex = evt.oldIndex;
-                    const newIndex = evt.newIndex;
-                    
-                    if (oldIndex === newIndex) return;
-
-                    // 移動陣列元素
-                    const movedDay = currentTripData.days.splice(oldIndex, 1)[0];
-                    currentTripData.days.splice(newIndex, 0, movedDay);
-
-                    // 寫回 Firebase
-                    update(ref(db, `users/${uid}/trips/${currentTripId}`), { data: currentTripData })
-                        .then(() => console.log('天數順序已更新'))
-                        .catch(err => alert('更新失敗'));
+                    handleDrag(evt);
                 }
             });
         });
+        
+        // 新增天數按鈕
+        const addDayBtn = document.createElement('div');
+        addDayBtn.className = 'column';
+        addDayBtn.style.justifyContent = 'center';
+        addDayBtn.style.alignItems = 'center';
+        addDayBtn.style.cursor = 'pointer';
+        addDayBtn.style.background = 'rgba(0,0,0,0.05)';
+        addDayBtn.innerHTML = `<h3 style="color:#aaa;">+ 新增天數</h3>`;
+        addDayBtn.onclick = () => {
+            const days = localTripData.days || [];
+            days.push({ day: `Day ${days.length + 1}`, title: "新的一天", items: [] });
+            update(ref(db, `trips/${currentTripId}`), { days: days });
+        };
+        board.appendChild(addDayBtn);
     }
+
+    // 5. 拖拉處理 logic
+    function handleDrag(evt) {
+        // 從 DOM 狀態反推資料比較複雜，建議直接從 source 和 destination 索引操作資料
+        const fromListId = evt.from.id.split('-')[1]; // col-0 -> 0
+        const toListId = evt.to.id.split('-')[1];
+        const oldIndex = evt.oldIndex;
+        const newIndex = evt.newIndex;
+
+        const days = localTripData.days;
+        const movedItem = days[fromListId].items.splice(oldIndex, 1)[0];
+        
+        if(!days[toListId].items) days[toListId].items = [];
+        days[toListId].items.splice(newIndex, 0, movedItem);
+
+        // 更新 Firebase
+        update(ref(db, `trips/${currentTripId}`), { days: days });
+    }
+
+    // 6. 編輯功能
+    window.addCard = (dIndex) => {
+        const newItem = {
+            title: "新行程", time: "10:00", desc: "描述...", type: "spot"
+        };
+        const days = localTripData.days;
+        if(!days[dIndex].items) days[dIndex].items = [];
+        days[dIndex].items.push(newItem);
+        update(ref(db, `trips/${currentTripId}`), { days: days });
+    };
+
+    window.openEditModal = (dIndex, cIndex, item) => {
+        currentDayIndex = dIndex;
+        currentCardId = cIndex;
+        
+        document.getElementById('editType').value = item.type || 'spot';
+        document.getElementById('editTime').value = item.time || '';
+        document.getElementById('editTitle').value = item.title || '';
+        document.getElementById('editDesc').value = item.desc || '';
+        
+        // 連結處理
+        let url = '';
+        if(Array.isArray(item.links) && item.links.length > 0) url = item.links[0];
+        else if(typeof item.links === 'string') url = item.links;
+        document.getElementById('editLink').value = url;
+
+        // 圖片處理
+        document.getElementById('editImgUrl').value = item.image || '';
+        document.getElementById('imgPreviewBox').innerHTML = item.image ? `<img src="${item.image}">` : '<span>預覽圖片</span>';
+        
+        document.getElementById('cardModal').classList.add('active');
+    };
+
+    window.closeModal = () => document.getElementById('cardModal').classList.remove('active');
+
+    // 圖片預覽與上傳
+    window.previewImage = (url) => {
+        document.getElementById('imgPreviewBox').innerHTML = url ? `<img src="${url}">` : '<span>預覽圖片</span>';
+    };
+
+    window.handleFileUpload = (input) => {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            
+            // 限制大小 500KB 以免 Firebase RTDB 爆掉
+            if(file.size > 500000) {
+                alert("圖片太大！請使用網址或是小於 500KB 的圖片。");
+                input.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('editImgUrl').value = e.target.result; // Base64 string
+                window.previewImage(e.target.result);
+            }
+            reader.readAsDataURL(file);
+        }
+    };
+
+    window.saveCard = () => {
+        const dIndex = currentDayIndex;
+        const cIndex = currentCardId;
+        const days = localTripData.days;
+        
+        const item = days[dIndex].items[cIndex];
+        item.type = document.getElementById('editType').value;
+        item.time = document.getElementById('editTime').value;
+        item.title = document.getElementById('editTitle').value;
+        item.desc = document.getElementById('editDesc').value;
+        
+        const link = document.getElementById('editLink').value;
+        item.links = link ? [link] : [];
+
+        const img = document.getElementById('editImgUrl').value;
+        item.image = img || null;
+
+        update(ref(db, `trips/${currentTripId}/days`), days).then(() => {
+            closeModal();
+        });
+    };
+
+    window.deleteCard = () => {
+        if(!confirm("確定要刪除此行程嗎？")) return;
+        const days = localTripData.days;
+        days[currentDayIndex].items.splice(currentCardId, 1);
+        update(ref(db, `trips/${currentTripId}/days`), days).then(() => closeModal());
+    };
+
+    window.shareTrip = () => {
+        navigator.clipboard.writeText(currentTripId).then(() => alert(`行程 ID 已複製：\n${currentTripId}\n請傳給朋友，他們可以在首頁加入！`));
+    };
+
 </script>
 </body>
 </html>
