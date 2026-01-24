@@ -3,575 +3,638 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> ✈️旅程規劃大師 </title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>行程規劃大師✈️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:wght@600&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
             --primary: #1B1F3B; /* 深藍奢華 */
             --secondary: #BFA15F; /* 金色點綴 */
-            --bg: #F5F5F7;
+            --secondary-hover: #a38640;
+            --bg: #F5F7FA;
             --text: #2c3e50;
-            --card-bg: #ffffff;
-            --column-width: 380px;
+            
+            /* 卡片配色 */
+            --color-spot: #455A64;   /* 鐵灰 (景) */
+            --color-food: #BFA15F;   /* 金色 (食) */
+            --color-travel: #1B1F3B; /* 深藍 (行) */
+            --color-stay: #8D6E63;   /* 暖棕 (宿) */
+            
+            --column-width: 320px;
         }
         
         * { box-sizing: border-box; outline: none; }
         body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         h1, h2, h3 { font-family: 'Playfair Display', serif; margin: 0; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #e0e0e0; }
+        ::-webkit-scrollbar-thumb { background: #BDC3C7; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #95a5a6; }
 
         /* 通用按鈕 */
-        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; }
+        .btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
         .btn:hover { background: #2c3e50; transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .btn-gold { background: var(--secondary); color: #1B1F3B; font-weight: bold; }
-        .btn-gold:hover { background: #d4b46e; }
-        .btn-outline { background: transparent; border: 1px solid var(--secondary); color: var(--secondary); }
-        .btn-danger { background: #e74c3c; }
+        .btn-gold:hover { background: var(--secondary-hover); }
+        .btn-danger { background: #c0392b; color: white; }
+        .btn-outline { background: transparent; border: 1px solid #ccc; color: #555; }
+        .btn-outline:hover { background: #eee; color: #333; }
+        .btn-icon { padding: 8px; border-radius: 4px; color: #666; cursor: pointer; }
+        .btn-icon:hover { background: rgba(0,0,0,0.05); color: var(--primary); }
 
-        /* 畫面切換 */
         .screen { display: none; height: 100%; flex-direction: column; }
         .screen.active { display: flex; }
 
-        /* 登入畫面 */
+        /* 1. 登入 */
         #loginScreen { justify-content: center; align-items: center; background: linear-gradient(135deg, #1B1F3B 0%, #0d1117 100%); color: white; }
-        .login-box { background: rgba(255,255,255,0.05); padding: 50px; border-radius: 16px; backdrop-filter: blur(20px); text-align: center; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.3); max-width: 400px; width: 90%; }
-        .login-box h1 { font-size: 2rem; margin-bottom: 10px; color: var(--secondary); }
-        .login-box p { color: #a0a0a0; margin-bottom: 30px; }
+        .login-box { background: rgba(255,255,255,0.1); padding: 50px; border-radius: 16px; backdrop-filter: blur(20px); text-align: center; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.3); max-width: 400px; width: 90%; }
+        .login-box h1 { font-size: 2.5rem; margin-bottom: 10px; color: var(--secondary); }
+        .login-btn-group { display: flex; flex-direction: column; gap: 15px; margin-top: 30px;}
+        .login-google { background: white; color: #333; font-weight: bold; }
 
-        /* 儀表板 */
-        #dashboardScreen { background: #f0f2f5; }
-        .dashboard-header { background: white; padding: 20px 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-        .dashboard-content { flex: 1; padding: 40px; overflow-y: auto; max-width: 1200px; margin: 0 auto; width: 100%; }
+        /* 2. Dashboard */
+        #dashboardScreen { background: #f4f5f7; overflow-y: auto; }
+        .nav-header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 100; }
+        .nav-brand { font-size: 1.4rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         
-        .action-bar { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
-        .join-box { display: flex; gap: 10px; background: white; padding: 5px; border-radius: 6px; border: 1px solid #ddd; }
-        .join-box input { border: none; padding: 8px; width: 200px; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; width: 100%; }
+        .section-title { font-size: 1.2rem; color: var(--primary); font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; }
+        
+        .trip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        
+        .dash-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; border: 1px solid transparent; display: flex; flex-direction: column; justify-content: space-between; min-height: 160px; position: relative; overflow: hidden; }
+        .dash-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-color: var(--secondary); }
+        .dash-card::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: var(--primary); }
+        .dash-card.template-card::before { background: var(--secondary); }
+        
+        .delete-trip-btn { position: absolute; top: 15px; right: 15px; color: #ccc; font-size: 1.1rem; transition: 0.2s; z-index: 2; }
+        .delete-trip-btn:hover { color: #e74c3c; transform: scale(1.1); }
 
-        .trip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .trip-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; border-top: 4px solid var(--secondary); position: relative; }
-        .trip-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .trip-card h3 { font-size: 1.2rem; margin-bottom: 10px; color: var(--primary); }
-        .trip-card p { font-size: 0.85rem; color: #666; }
-        .trip-id-tag { position: absolute; top: 10px; right: 10px; background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: #888; font-family: monospace; }
+        .dash-card.add-new { border: 2px dashed #bdc3c7; background: transparent; align-items: center; justify-content: center; color: #7f8c8d; box-shadow: none; }
+        .dash-card.add-new:hover { border-color: var(--secondary); color: var(--secondary); background: rgba(191, 161, 95, 0.05); }
+        
+        .trip-info h3 { font-size: 1.2rem; color: var(--primary); margin: 0 0 10px 0; line-height: 1.4; padding-right: 20px; }
+        .trip-meta { font-size: 0.85rem; color: #888; display: flex; justify-content: space-between; margin-top: auto; }
+        .id-badge { background: #f0f2f5; padding: 3px 8px; border-radius: 4px; font-family: monospace; color: #555; font-size: 0.8rem; border: 1px solid #ddd; }
 
-        /* 看板 (Board) */
+        .tool-section { background: white; padding: 25px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 30px; }
+        .input-group { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .input-group input, .input-group textarea { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 6px; background: #fafafa; }
+
+        /* 3. Board */
         #boardScreen { background: #E3E9EE; }
-        header { background: white; padding: 0 20px; height: 60px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 10; }
-        .board-title { font-size: 1.2rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .board-header { background: white; color: var(--primary); padding: 0 25px; height: 65px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; border-bottom: 1px solid #ddd; }
+        .board-title-text { font-weight: 700; font-size: 1.3rem; }
         
-        .board-container { flex: 1; overflow-x: auto; overflow-y: hidden; padding: 20px; display: flex; gap: 20px; align-items: flex-start; }
+        .board-canvas { flex: 1; overflow-x: auto; overflow-y: hidden; padding: 25px; display: flex; gap: 20px; align-items: flex-start; background-image: radial-gradient(#bdc3c7 1px, transparent 1px); background-size: 20px 20px; }
         
-        .column { background: #F4F5F7; min-width: var(--column-width); width: var(--column-width); border-radius: 10px; display: flex; flex-direction: column; max-height: calc(100vh - 100px); flex-shrink: 0; border: 1px solid #dfe1e6; }
-        .column-header { padding: 15px; font-weight: bold; color: var(--primary); background: #ebecf0; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; }
-        .card-list { padding: 10px; overflow-y: auto; flex: 1; min-height: 50px; }
+        /* 欄位樣式 */
+        .column { background: #F4F5F7; min-width: var(--column-width); width: var(--column-width); border-radius: 10px; display: flex; flex-direction: column; max-height: calc(100vh - 120px); flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e1e4e8; transition: transform 0.2s; }
+        .column-header { padding: 15px; font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e4e8; background: #fff; border-radius: 10px 10px 0 0; cursor: grab; }
+        .column-header:active { cursor: grabbing; }
+        .day-title { font-size: 1.05rem; }
         
-        /* 卡片設計 */
-        .card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; border-left: 4px solid transparent; transition: 0.2s; position: relative; group; }
-        .card:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-        .card.type-travel { border-left-color: #3498db; }
-        .card.type-food { border-left-color: #e67e22; }
-        .card.type-spot { border-left-color: #27ae60; }
-        .card.type-stay { border-left-color: #9b59b6; }
+        .card-list { padding: 10px; overflow-y: auto; flex: 1; min-height: 80px; }
+        
+        /* 卡片樣式 */
+        .card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; border-left: 5px solid #ccc; transition: 0.2s; position: relative; }
+        .card:hover { box-shadow: 0 8px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        
+        .card.type-travel { border-left-color: var(--color-travel); background-color: #e9ecef; } 
+        .card.type-spot { border-left-color: var(--color-spot); }   
+        .card.type-food { border-left-color: var(--color-food); }   
+        .card.type-stay { border-left-color: var(--color-stay); }   
+        
+        .card-time { font-weight: 700; color: #666; font-size: 0.85rem; margin-bottom: 4px; display: block; letter-spacing: 0.5px; }
+        .card-title { font-weight: 600; font-size: 1rem; color: #2c3e50; margin-bottom: 4px; }
+        .card-desc { font-size: 0.85rem; color: #7f8c8d; line-height: 1.4; margin-bottom: 8px; white-space: pre-wrap; }
+        
+        .card-toolbar { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px; margin-top: 8px; opacity: 0; transition: 0.2s; }
+        .card:hover .card-toolbar { opacity: 1; }
+        
+        .type-tags { display: flex; gap: 5px; }
+        .type-badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; color: #fff; cursor: pointer; opacity: 0.3; transition: 0.2s; font-weight: bold; }
+        .type-badge:hover { opacity: 1; transform: scale(1.1); }
+        .bg-spot { background-color: var(--color-spot); }
+        .bg-food { background-color: var(--color-food); }
+        .bg-travel { background-color: var(--color-travel); }
+        .bg-stay { background-color: var(--color-stay); }
 
-        .card-time { font-size: 0.85rem; font-weight: bold; color: var(--secondary); font-family: monospace; display: block; margin-bottom: 4px; }
-        .card-title { font-weight: 600; font-size: 1rem; margin-bottom: 6px; color: #2c3e50; }
-        .card-desc { font-size: 0.85rem; color: #555; line-height: 1.5; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .card-img { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; margin-top: 8px; display: none; }
-        .card-img.show { display: block; }
+        .action-icons i { color: #bdc3c7; cursor: pointer; margin-left: 8px; font-size: 0.9rem; transition: 0.2s; }
+        .action-icons i:hover { color: var(--secondary); }
+        .action-icons i.delete:hover { color: #e74c3c; }
+
+        .link-item { background: #fff; padding: 5px 8px; border-radius: 4px; font-size: 0.8rem; margin-top: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ddd; color: var(--primary); }
+        .link-item a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
         
-        /* 編輯 Modal */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; justify-content: center; align-items: center; }
+        .img-gallery { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+        .img-item { position: relative; width: 60px; height: 60px; border-radius: 4px; overflow: hidden; border: 1px solid #ddd; flex-shrink: 0; }
+        .img-item img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: 0.2s; }
+        .img-item:hover img { transform: scale(1.1); }
+        .remove-img-btn { position: absolute; top: 0; right: 0; background: rgba(231, 76, 60, 0.9); color: white; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; z-index: 2; border-bottom-left-radius: 4px;}
+
+        /* 新增活動按鈕樣式 */
+        .add-card-btn { width: 100%; padding: 12px; border: 2px dashed #dce1e6; background: transparent; color: #95a5a6; border-radius: 8px; cursor: pointer; margin-top: 5px; font-weight: 500; transition: 0.2s; }
+        .add-card-btn:hover { border-color: var(--secondary); color: var(--secondary); background: rgba(191, 161, 95, 0.05); }
+
+        /* 新增天數欄位樣式 */
+        .add-day-column { min-width: 60px; display: flex; padding-top: 10px; justify-content: center; }
+        .add-day-btn { width: 50px; height: 50px; border-radius: 50%; border: 2px dashed #bdc3c7; color: #7f8c8d; font-size: 20px; cursor: pointer; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.2s; }
+        .add-day-btn:hover { border-color: var(--secondary); color: var(--secondary); transform: scale(1.1); }
+
+        /* Overlay & Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; display: none; justify-content: center; align-items: center; }
         .modal-overlay.active { display: flex; }
-        .modal { background: white; padding: 30px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .modal h2 { margin-bottom: 20px; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; color: #666; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; }
-        .form-group textarea { height: 100px; resize: vertical; }
-        
-        .image-preview { width: 100%; height: 150px; background: #eee; margin-top: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 4px; border: 1px dashed #ccc; color: #999; }
-        .image-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .modal { background: white; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
 
-        /* 匯入區域 */
-        #importArea { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1001; width: 600px; }
-        #importArea textarea { width: 100%; height: 200px; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; font-family: monospace; font-size: 0.8rem; }
+        .read-only .card-toolbar, .read-only .add-card-btn, .read-only .delete-day-btn, .read-only .remove-btn, .read-only .delete-trip-btn, .read-only .remove-img-btn, .read-only .add-day-column { display: none !important; }
+        .read-only [contenteditable] { pointer-events: none; }
+        [contenteditable]:focus { background-color: rgba(191, 161, 95, 0.1); border-radius: 2px; }
 
-        /* 載入動畫 */
-        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: none; justify-content: center; align-items: center; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--secondary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); z-index: 2000; display: none; justify-content: center; align-items: center; font-weight: bold; color: var(--primary); flex-direction: column; gap: 15px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* 手機 RWD */
-        @media (max-width: 768px) {
-            .board-container { flex-direction: column; height: auto; overflow-y: auto; }
-            .column { width: 100%; max-height: none; }
-            .modal { width: 95%; }
-        }
     </style>
 </head>
 <body>
 
-<div id="loading"><div class="spinner"></div></div>
+<div id="loading">
+    <div class="spinner"></div>
+    <div>處理中...</div>
+</div>
 
 <div id="loginScreen" class="screen active">
     <div class="login-box">
-        <h1>Travel Planner</h1>
-        <p> CC 嘻嘻哈哈出去玩 ✈️ </p>
-        <button class="btn btn-gold" style="width:100%; justify-content: center; padding: 15px;" onclick="loginAnonymously()">
-            <i class="fas fa-user-secret"></i> 訪客登入 (開始規劃)
-        </button>
+        <h1>Travel Pro</h1>
+        <p> 超級棒的拉 </p>
+        <div class="login-btn-group">
+            <button class="btn login-google" onclick="loginWithGoogle()" style="justify-content: center; padding: 12px;">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="G"> 使用 Google 登入
+            </button>
+            <button class="btn btn-outline" onclick="loginAnonymously()" style="justify-content: center; color: #ccc; border-color: #555;">
+                <i class="fas fa-user-secret"></i> 訪客試用
+            </button>
+        </div>
     </div>
 </div>
 
 <div id="dashboardScreen" class="screen">
-    <div class="dashboard-header">
-        <h2><i class="fas fa-compass"></i> 我的行程 </h2>
-        <div style="display:flex; align-items:center; gap:10px;">
-            <span id="userIdDisplay" style="font-size:0.8rem; color:#888;"></span>
-            <button class="btn btn-outline" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 登出</button>
+    <header class="nav-header">
+        <div class="nav-brand"><i class="fas fa-plane-departure"></i> Travel Pro</div>
+        <div style="display:flex; gap:15px; align-items:center;">
+            <span id="welcomeMsg" style="color: #666; font-weight: 500;">Hi, User</span>
+            <button class="btn btn-outline" onclick="logout()">登出</button>
         </div>
-    </div>
-    <div class="dashboard-content">
-        <div class="action-bar">
-            <button class="btn" onclick="createNewTrip()"><i class="fas fa-plus"></i> 新增空白行程</button>
-            <button class="btn btn-gold" onclick="toggleImport()"><i class="fas fa-file-import"></i> 匯入 JSON</button>
-            <div class="join-box">
-                <input type="text" id="joinIdInput" placeholder="輸入朋友的行程 ID">
-                <button class="btn" style="padding: 5px 15px;" onclick="joinTrip()"><i class="fas fa-user-plus"></i> 加入</button>
+    </header>
+
+    <div class="container">
+        <div class="section-title"><i class="fas fa-star"></i> 官方推薦行程</div>
+        <div id="templateList" class="trip-grid"></div>
+
+        <div class="section-title"><i class="fas fa-suitcase"></i> 我的行程表</div>
+        <div id="tripList" class="trip-grid"></div>
+
+        <div class="tool-section">
+            <div class="section-title" style="margin-bottom:15px; border:none;"><i class="fas fa-user-friends"></i> 加入朋友行程</div>
+            <div class="input-group">
+                <input type="text" id="joinCodeInput" placeholder="輸入行程 ID (例如: japan2026)">
+                <button class="btn btn-gold" onclick="joinTrip()">加入行程</button>
             </div>
         </div>
 
-        <div id="tripList" class="trip-grid">
-            </div>
+        <div class="tool-section">
+            <div class="section-title" style="margin-bottom:15px; border:none;"><i class="fas fa-file-import"></i> 匯入行程資料 (JSON)</div>
+            <details>
+                <summary style="cursor:pointer; color:#7f8c8d; padding:5px 0;">點擊展開 JSON 貼上區</summary>
+                <div class="input-group" style="flex-direction: column;">
+                    <div>
+                        <label style="font-weight:bold; color:var(--primary); font-size:0.9rem;">自訂 ID (選填):</label>
+                        <input type="text" id="importCustomId" placeholder="例如: japan2026 (若留空則自動產生亂碼)" style="margin-top:5px; width: 100%;">
+                    </div>
+                    <textarea id="importJsonInput" style="height:120px; font-family: monospace;" placeholder='請在此貼上完整的 JSON'></textarea>
+                    <button class="btn btn-primary" onclick="importTripFromJson()">確認匯入</button>
+                </div>
+            </details>
+        </div>
     </div>
 </div>
 
 <div id="boardScreen" class="screen">
-    <header>
-        <div class="board-title">
-            <button class="btn btn-outline" onclick="showScreen('dashboardScreen')" style="padding: 5px 10px; font-size: 0.8rem;"><i class="fas fa-arrow-left"></i></button>
-            <span id="currentProjectTitle">旅程標題</span>
+    <header class="board-header">
+        <div class="board-title-area">
+            <button class="btn btn-outline" onclick="backToDashboard()"><i class="fas fa-arrow-left"></i></button>
+            <div id="projectTitle" class="board-title-text" contenteditable="false" onblur="saveTitle()">未命名行程</div>
         </div>
         <div style="display:flex; gap:10px;">
-            <button class="btn btn-gold" onclick="shareTrip()"><i class="fas fa-share-alt"></i> 複製 ID 分享</button>
-            </div>
+            <button class="btn btn-outline" onclick="openImportModal()"><i class="fas fa-file-import"></i> 覆蓋匯入</button>
+            <button class="btn btn-outline" onclick="renameTripId()" title="更改 ID"><i class="fas fa-fingerprint"></i> 改ID</button>
+            <button id="toggleEdit" class="btn btn-outline" onclick="toggleEditMode()"><i class="fas fa-lock"></i> 唯讀</button>
+            <div style="border-left:1px solid #ddd; margin:0 5px;"></div>
+            <button id="undoBtn" class="btn btn-icon" onclick="performUndo()" disabled title="復原"><i class="fas fa-undo"></i></button>
+            <button id="redoBtn" class="btn btn-icon" onclick="performRedo()" disabled title="重做"><i class="fas fa-redo"></i></button>
+            <button class="btn btn-gold" onclick="copyTripId()"><i class="far fa-copy"></i> 複製ID</button>
+        </div>
     </header>
-    <div class="board-container" id="board">
+    
+    <div class="board-canvas" id="board">
         </div>
 </div>
 
-<div id="importArea">
-    <h3>匯入行程 JSON</h3>
-    <textarea id="jsonInput" placeholder="請在此貼上 JSON 代碼"></textarea>
-    <div style="display:flex; justify-content:flex-end; gap:10px;">
-        <button class="btn btn-outline" onclick="toggleImport()">取消</button>
-        <button class="btn" onclick="importTripConfirm()">確認匯入</button>
-    </div>
-</div>
-
-<div id="cardModal" class="modal-overlay">
+<div id="importModal" class="modal-overlay">
     <div class="modal">
-        <h2>編輯行程</h2>
-        <div class="form-group">
-            <label>類型</label>
-            <select id="editType">
-                <option value="travel">交通 (Travel)</option>
-                <option value="food">美食 (Food)</option>
-                <option value="spot">景點 (Spot)</option>
-                <option value="stay">住宿 (Stay)</option>
-            </select>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="margin:0;">JSON覆蓋當前行程</h3>
+            <span style="cursor:pointer;" onclick="closeImportModal()">✕</span>
         </div>
-        <div class="form-group">
-            <label>時間</label>
-            <input type="text" id="editTime" placeholder="例如：13:00">
-        </div>
-        <div class="form-group">
-            <label>標題</label>
-            <input type="text" id="editTitle" placeholder="行程標題">
-        </div>
-        <div class="form-group">
-            <label>詳細描述 (支援 HTML)</label>
-            <textarea id="editDesc" placeholder="輸入詳細資訊..."></textarea>
-        </div>
-        <div class="form-group">
-            <label>相關連結 (URL)</label>
-            <input type="text" id="editLink" placeholder="https://...">
-        </div>
-        <div class="form-group">
-            <label>圖片 (上傳檔案 或 貼上網址)</label>
-            <div style="display:flex; gap:5px; margin-bottom:5px;">
-                <input type="text" id="editImgUrl" placeholder="圖片網址..." onchange="previewImage(this.value)">
-                <label for="editImgFile" class="btn btn-outline" style="margin:0; width:auto; cursor:pointer;"><i class="fas fa-upload"></i></label>
-                <input type="file" id="editImgFile" accept="image/*" style="display:none;" onchange="handleFileUpload(this)">
-            </div>
-            <div class="image-preview" id="imgPreviewBox">
-                <span>預覽圖片</span>
-            </div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; margin-top:20px;">
-            <button class="btn btn-danger" onclick="deleteCard()"><i class="fas fa-trash"></i> 刪除</button>
-            <div style="display:flex; gap:10px;">
-                <button class="btn btn-outline" onclick="closeModal()">取消</button>
-                <button class="btn" onclick="saveCard()"><i class="fas fa-check"></i> 儲存</button>
-            </div>
+        <textarea id="modalImportJson" style="width:100%; height:150px; border:1px solid #ddd; border-radius:6px; padding:10px; font-family:monospace;" placeholder="請在此貼上 JSON (這將會覆蓋您目前的行程)"></textarea>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+            <button class="btn btn-outline" onclick="closeImportModal()">取消</button>
+            <button class="btn btn-danger" onclick="overwriteTrip()">確認覆蓋</button>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, push, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getDatabase, ref, set, push, onValue, get, child, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, signInWithPopup, signInAnonymously, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // ★★★ 請替換成您的 Firebase Config ★★★
+    // ★★★ 請替換成你的 Firebase Config ★★★
     const firebaseConfig = {
         apiKey: "AIzaSyAQvaTOqGpa39l33XTg8r13kMZvtPAA4Ds",
-          authDomain: "travelschedule-5fb2f.firebaseapp.com",
-          databaseURL: "https://travelschedule-5fb2f-default-rtdb.firebaseio.com",
-          projectId: "travelschedule-5fb2f",
-          storageBucket: "travelschedule-5fb2f.firebasestorage.app",
-          messagingSenderId: "265891148429",
-          appId: "1:265891148429:web:bc7602ed700a89f4eae8c4",
-          measurementId: "G-C28PN16XJY"
+        authDomain: "travelschedule-5fb2f.firebaseapp.com",
+        databaseURL: "https://travelschedule-5fb2f-default-rtdb.firebaseio.com",
+        projectId: "travelschedule-5fb2f",
+        storageBucket: "travelschedule-5fb2f.firebasestorage.app",
+        messagingSenderId: "265891148429",
+        appId: "1:265891148429:web:bc7602ed700a89f4eae8c4",
+        measurementId: "G-C28PN16XJY"
     };
 
-    // 初始化 Firebase
-    let app, db, auth, uid;
-    try {
-        app = initializeApp(firebaseConfig);
-        db = getDatabase(app);
-        auth = getAuth(app);
-    } catch(e) { console.error(e); alert("請設定 Firebase Config"); }
-
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    
+    let currentUser = null;
     let currentTripId = null;
-    let currentCardId = null;
-    let currentDayIndex = null;
-    let localTripData = {}; 
+    let isReadOnly = true; 
+    let currentDataState = ""; 
+    let historyStack = [];
+    let redoStack = [];
 
-    // 狀態管理
-    const showLoading = (show) => document.getElementById('loading').style.display = show ? 'flex' : 'none';
-    window.showScreen = (id) => {
-        document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+    window.loginWithGoogle = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e=>alert(e.message));
+    window.loginAnonymously = () => signInAnonymously(auth).catch(e=>alert(e.message));
+    window.logout = () => signOut(auth).then(()=>location.reload());
+    window.createTrip = createTrip;
+    window.joinTrip = joinTrip;
+    window.loadTrip = loadTrip;
+    window.backToDashboard = () => { currentTripId = null; showScreen('dashboardScreen'); };
+    window.copyTripId = () => navigator.clipboard.writeText(currentTripId).then(()=>alert("已複製 ID: " + currentTripId));
+    window.copyTemplate = copyTemplate;
+    window.renameTripId = renameTripId;
+    window.toggleEditMode = toggleEditMode;
+    window.performUndo = performUndo;
+    window.performRedo = performRedo;
+    window.saveTitle = () => update(ref(db, `trips/${currentTripId}`), { projectTitle: document.getElementById('projectTitle').innerText });
+    window.saveTrigger = saveTrigger;
+    
+    window.addDay = () => { 
+        if(isReadOnly)return; 
+        let d = getDataFromDOM().days; 
+        d.push({day:`Day ${d.length+1}`, items:[]}); 
+        updateData({days:d}); 
     };
 
-    // 1. 認證
-    window.loginAnonymously = () => {
-        showLoading(true);
-        signInAnonymously(auth).catch(e => { alert(e.message); showLoading(false); });
+    window.deleteDay = (btn) => { 
+        if(isReadOnly)return; 
+        if(confirm('確定要刪除這一天嗎?')){ 
+            const col = btn.closest('.column');
+            col.remove(); 
+            saveTrigger(); 
+        }
     };
-    window.logout = () => signOut(auth).then(() => window.location.reload());
 
-    onAuthStateChanged(auth, user => {
-        showLoading(false);
+    window.addCard = (btn) => { 
+        if(isReadOnly)return; 
+        const col = btn.closest('.column');
+        const list = col.querySelector('.card-list');
+        list.innerHTML += createCardHTML({time:'09:00', title:'新活動', type:'spot'}); 
+        saveTrigger(); 
+    };
+
+    window.deleteCard = (el) => { if(isReadOnly)return; el.closest('.card').remove(); saveTrigger(); };
+    
+    window.updateType = (el, t) => { 
+        if(isReadOnly)return; 
+        const card = el.closest('.card'); 
+        card.classList.remove('type-spot', 'type-food', 'type-travel', 'type-stay');
+        card.classList.add(`type-${t}`); 
+        saveTrigger(); 
+    };
+
+    window.addLink = (el) => { if(isReadOnly)return; let u=prompt("請輸入網址"); if(u) { el.closest('.card').querySelector('.link-list').innerHTML+=`<div class="link-item"><a href="${u}" target="_blank"><i class="fas fa-link"></i> 連結</a><span class="remove-btn" onclick="this.parentElement.remove();saveTrigger()" style="color:#aaa;">×</span></div>`; saveTrigger(); }};
+    
+    window.handleImage = (inp) => { 
+        if(isReadOnly || !inp.files[0]) return; 
+        let r=new FileReader(); 
+        r.onload=e=>{ 
+            const gallery = inp.closest('.card').querySelector('.img-gallery');
+            const div = document.createElement('div');
+            div.className = 'img-item';
+            div.innerHTML = `<img src="${e.target.result}" onclick="window.open(this.src)"><div class="remove-img-btn" onclick="this.parentElement.remove();saveTrigger()">×</div>`;
+            gallery.appendChild(div);
+            saveTrigger(); 
+        }; 
+        r.readAsDataURL(inp.files[0]); 
+    };
+
+    window.removeUserTrip = (e, tripId) => {
+        e.stopPropagation(); 
+        if(!confirm("確定要從列表中移除此行程嗎？(不會刪除原始行程)")) return;
+        remove(ref(db, `users/${currentUser.uid}/trip_ids/${tripId}`))
+            .then(() => alert("已移除"))
+            .catch(err => alert("移除失敗: " + err.message));
+    };
+
+    // Dashboard 匯入邏輯 (新增)
+    window.importTripFromJson = async function() {
+        const jsonText = document.getElementById('importJsonInput').value.trim();
+        const customId = document.getElementById('importCustomId').value.trim();
+        if (!jsonText) { alert("請先貼上 JSON 資料！"); return; }
+        if (customId && !/^[a-zA-Z0-9_-]+$/.test(customId)) { alert("自訂 ID 格式錯誤"); return; }
+
+        try {
+            const data = JSON.parse(jsonText);
+            if (!data.days || !Array.isArray(data.days)) { alert("格式錯誤：需包含 days 陣列"); return; }
+            if (!data.projectTitle) data.projectTitle = "匯入的行程";
+            
+            document.getElementById('loading').style.display = 'flex';
+            let newRef;
+            if (customId) {
+                const checkSnap = await get(child(ref(db), `trips/${customId}`));
+                if (checkSnap.exists()) {
+                    document.getElementById('loading').style.display = 'none';
+                    alert(`ID "${customId}" 已存在，請更換。`);
+                    return;
+                }
+                newRef = ref(db, `trips/${customId}`);
+            } else { newRef = push(ref(db, 'trips')); }
+
+            await set(newRef, data);
+            await update(ref(db, `users/${currentUser.uid}/trip_ids`), { [customId || newRef.key]: true });
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('importJsonInput').value = '';
+            document.getElementById('importCustomId').value = '';
+            alert("匯入成功！");
+        } catch (e) { document.getElementById('loading').style.display = 'none'; alert("JSON 錯誤：" + e.message); }
+    };
+
+    // Board 覆蓋匯入邏輯 (覆蓋)
+    window.openImportModal = () => {
+        if(isReadOnly) { alert("請先切換至編輯模式"); return; }
+        document.getElementById('importModal').classList.add('active');
+    };
+    window.closeImportModal = () => document.getElementById('importModal').classList.remove('active');
+    
+    window.overwriteTrip = async function() {
+        const jsonText = document.getElementById('modalImportJson').value.trim();
+        if (!jsonText) return;
+        
+        try {
+            const data = JSON.parse(jsonText);
+            if (!data.days) { alert("JSON 格式錯誤"); return; }
+            
+            if(confirm("警告：這將會完全覆蓋目前的行程內容！確定要執行嗎？")) {
+                await update(ref(db, `trips/${currentTripId}`), data);
+                closeImportModal();
+                alert("已覆蓋行程");
+            }
+        } catch(e) { alert("JSON 錯誤: " + e.message); }
+    };
+
+    onAuthStateChanged(auth, (user) => {
         if (user) {
-            uid = user.uid;
-            document.getElementById('userIdDisplay').innerText = `ID: ${uid.substring(0,6)}...`;
+            currentUser = user;
+            document.getElementById('welcomeMsg').innerText = `Hi, ${user.displayName || 'Guest'}`;
             showScreen('dashboardScreen');
             loadUserTrips();
-        } else {
-            showScreen('loginScreen');
-        }
+            loadTemplates();
+        } else { showScreen('loginScreen'); }
     });
 
-    // 2. 儀表板：載入行程列表
+    function showScreen(id) { document.querySelectorAll('.screen').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+
     function loadUserTrips() {
-        // 監聽使用者的行程清單
-        const userTripsRef = ref(db, `users/${uid}/trips`);
-        onValue(userTripsRef, (snapshot) => {
+        onValue(ref(db, `users/${currentUser.uid}/trip_ids`), async (snap) => {
             const list = document.getElementById('tripList');
-            list.innerHTML = '';
-            const tripIds = snapshot.val() || {};
-            
-            Object.keys(tripIds).forEach(tripId => {
-                // 讀取實際行程資料 (Metadata)
-                const tripRef = ref(db, `trips/${tripId}/metadata`);
-                onValue(tripRef, (snap) => {
-                    const meta = snap.val();
-                    if(!meta) return; // 可能已被刪除
-                    
-                    // 避免重複渲染 (簡單處理)
-                    let card = document.getElementById(`trip-card-${tripId}`);
-                    if(!card) {
-                        card = document.createElement('div');
-                        card.id = `trip-card-${tripId}`;
-                        card.className = 'trip-card';
-                        list.appendChild(card);
-                    }
-                    
+            list.innerHTML = `<div class="dash-card add-new" onclick="createTrip()"><i class="fas fa-plus-circle"></i><span>建立新行程</span></div>`;
+            const ids = snap.val() || {};
+            const promises = Object.keys(ids).map(async (tid) => {
+                const tSnap = await get(child(ref(db), `trips/${tid}/projectTitle`));
+                return tSnap.exists() ? { tid, title: tSnap.val() } : null;
+            });
+            const results = await Promise.all(promises);
+            results.forEach(item => {
+                if(item) {
+                    const card = document.createElement('div'); card.className = 'dash-card';
                     card.innerHTML = `
-                        <span class="trip-id-tag">ID: ${tripId}</span>
-                        <h3>${meta.title}</h3>
-                        <p><i class="fas fa-clock"></i> 上次更新: ${new Date().toLocaleDateString()}</p>
+                        <i class="fas fa-times-circle delete-trip-btn" onclick="removeUserTrip(event, '${item.tid}')" title="移除訂閱"></i>
+                        <div class="trip-info"><h3>${item.title}</h3></div>
+                        <div class="trip-meta"><span><i class="far fa-calendar-alt"></i> 規劃中</span><span class="id-badge">${item.tid}</span></div>
                     `;
-                    card.onclick = () => openTrip(tripId);
-                });
+                    card.onclick = () => loadTrip(item.tid);
+                    list.appendChild(card);
+                }
             });
         });
     }
 
-    // 3. 建立與匯入
-    window.createNewTrip = () => {
-        const title = prompt("請輸入行程名稱", "我的新行程");
-        if(!title) return;
-        const newTripRef = push(ref(db, 'trips'));
-        const tripId = newTripRef.key;
-        
-        const initialData = {
-            metadata: { title: title, owner: uid },
-            days: [ { day: "Day 1", title: "第一天", items: [] } ] // 預設一天
-        };
-        
-        set(newTripRef, initialData).then(() => {
-            // 綁定到使用者
-            update(ref(db, `users/${uid}/trips`), { [tripId]: true });
-        });
-    };
-
-    window.toggleImport = () => {
-        const el = document.getElementById('importArea');
-        el.style.display = el.style.display === 'block' ? 'none' : 'block';
-    };
-
-    window.importTripConfirm = () => {
-        try {
-            const json = document.getElementById('jsonInput').value;
-            const data = JSON.parse(json);
-            const newTripRef = push(ref(db, 'trips'));
-            const tripId = newTripRef.key;
-
-            const formattedData = {
-                metadata: { title: data.projectTitle, owner: uid },
-                days: data.days || []
-            };
-
-            set(newTripRef, formattedData).then(() => {
-                update(ref(db, `users/${uid}/trips`), { [tripId]: true });
-                toggleImport();
-                document.getElementById('jsonInput').value = '';
-                alert("匯入成功！");
-            });
-        } catch(e) { alert("JSON 格式錯誤"); console.error(e); }
-    };
-
-    window.joinTrip = () => {
-        const joinId = document.getElementById('joinIdInput').value.trim();
-        if(!joinId) return;
-        // 檢查該 ID 是否存在
-        get(ref(db, `trips/${joinId}`)).then(snap => {
-            if(snap.exists()) {
-                update(ref(db, `users/${uid}/trips`), { [joinId]: true });
-                alert("成功加入行程！");
-            } else {
-                alert("找不到該行程 ID");
+    function loadTemplates() {
+        onValue(ref(db, 'templates'), (snap) => {
+            const list = document.getElementById('templateList'); list.innerHTML = ''; 
+            const templates = snap.val() || {};
+            for (let tid in templates) {
+                const tpl = templates[tid];
+                const card = document.createElement('div'); card.className = 'dash-card template-card';
+                card.innerHTML = `<div class="trip-info"><h3>${tpl.projectTitle}</h3><span style="font-size:0.8rem; background:var(--secondary); color:white; padding:2px 6px; border-radius:4px;">官方推薦</span></div><div class="trip-meta"><button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:10px;" onclick="event.stopPropagation(); copyTemplate('${tid}')"><i class="fas fa-download"></i> 複製此行程</button></div>`;
+                list.appendChild(card);
             }
         });
-    };
+    }
 
-    // 4. 開啟行程 (Board)
-    function openTrip(tripId) {
-        currentTripId = tripId;
-        showScreen('boardScreen');
-        showLoading(true);
+    async function copyTemplate(tid) {
+        if(!confirm("複製此公版行程？")) return;
+        document.getElementById('loading').style.display = 'flex';
+        const snap = await get(child(ref(db), `templates/${tid}`));
+        const data = snap.val(); data.projectTitle += " (副本)";
+        const newRef = push(ref(db, 'trips'));
+        await set(newRef, data);
+        await update(ref(db, `users/${currentUser.uid}/trip_ids`), { [newRef.key]: true });
+        document.getElementById('loading').style.display = 'none';
+        alert("複製成功！");
+    }
 
-        const tripRef = ref(db, `trips/${tripId}`);
-        // 實時監聽整個行程資料
-        onValue(tripRef, (snap) => {
-            localTripData = snap.val();
-            renderBoard();
-            showLoading(false);
+    function createTrip() {
+        const refNew = push(ref(db, 'trips'));
+        set(refNew, { projectTitle: "新旅程", days: [{day:"Day 1", items:[]}] }).then(() => update(ref(db, `users/${currentUser.uid}/trip_ids`), { [refNew.key]: true }));
+    }
+
+    function joinTrip() {
+        const code = document.getElementById('joinCodeInput').value.trim();
+        if(!code) return;
+        document.getElementById('loading').style.display = 'flex';
+        get(child(ref(db), `trips/${code}`)).then(snapshot => {
+             document.getElementById('loading').style.display = 'none';
+             if(snapshot.exists()) { update(ref(db, `users/${currentUser.uid}/trip_ids`), {[code]:true}); alert("加入成功"); document.getElementById('joinCodeInput').value = ''; } else { alert("找不到此 ID"); }
         });
     }
 
-    function renderBoard() {
-        if(!localTripData) return;
-        document.getElementById('currentProjectTitle').innerText = localTripData.metadata.title;
-        const board = document.getElementById('board');
-        board.innerHTML = '';
+    async function renameTripId() {
+        if(isReadOnly) { alert("請先切換到編輯模式"); return; }
+        const newId = prompt("請輸入新的 ID (例如 japan2026):", currentTripId);
+        if(!newId || newId === currentTripId) return;
+        if(!/^[a-zA-Z0-9_-]+$/.test(newId)) { alert("ID 只能包含英文數字"); return; }
+        document.getElementById('loading').style.display = 'flex';
+        const checkSnap = await get(child(ref(db), `trips/${newId}`));
+        if(checkSnap.exists()) { document.getElementById('loading').style.display = 'none'; alert("此 ID 已被使用"); return; }
+        const snap = await get(ref(db, `trips/${currentTripId}`));
+        await set(ref(db, `trips/${newId}`), snap.val());
+        await update(ref(db, `users/${currentUser.uid}/trip_ids`), { [newId]: true, [currentTripId]: null });
+        await remove(ref(db, `trips/${currentTripId}`));
+        currentTripId = newId; document.getElementById('loading').style.display = 'none'; alert(`修改成功！新 ID: ${newId}`); loadTrip(newId);
+    }
 
-        (localTripData.days || []).forEach((day, dIndex) => {
-            const col = document.createElement('div');
-            col.className = 'column';
+    function loadTrip(tid) {
+        currentTripId = tid; showScreen('boardScreen'); document.getElementById('loading').style.display = 'flex';
+        isReadOnly = true; updateEditModeUI(); historyStack = []; redoStack = []; updateUndoButtons();
+        onValue(ref(db, `trips/${tid}`), (s) => {
+            document.getElementById('loading').style.display = 'none';
+            const d = s.val(); if(!d) return;
+            const jsonStr = JSON.stringify(d);
+            if(jsonStr !== currentDataState) {
+                if(!isReadOnly && currentDataState) { historyStack.push(currentDataState); updateUndoButtons(); }
+                currentDataState = jsonStr; renderBoard(d);
+            }
+        });
+    }
+
+    function updateData(d) { update(ref(db, `trips/${currentTripId}`), d); }
+    function saveTrigger() { if (isReadOnly) return; setTimeout(() => { const n=getDataFromDOM(); const s=JSON.stringify(n); if(s===currentDataState)return; historyStack.push(currentDataState); if(historyStack.length>20)historyStack.shift(); redoStack=[]; updateUndoButtons(); currentDataState=s; updateData(n); }, 100); }
+    
+    function performUndo() { if(!historyStack.length||isReadOnly)return; redoStack.push(currentDataState); let p=historyStack.pop(); currentDataState=p; let d=JSON.parse(p); renderBoard(d); updateData(d); updateUndoButtons(); }
+    function performRedo() { if(!redoStack.length||isReadOnly)return; historyStack.push(currentDataState); let n=redoStack.pop(); currentDataState=n; let d=JSON.parse(n); renderBoard(d); updateData(d); updateUndoButtons(); }
+    function updateUndoButtons() { document.getElementById('undoBtn').disabled=(!historyStack.length||isReadOnly); document.getElementById('redoBtn').disabled=(!redoStack.length||isReadOnly); }
+
+    function toggleEditMode() { isReadOnly=!isReadOnly; updateEditModeUI(); if(currentDataState) renderBoard(JSON.parse(currentDataState)); }
+    function updateEditModeUI() { 
+        const b=document.getElementById('toggleEdit'); const bd=document.getElementById('board'); const t=document.getElementById('projectTitle'); 
+        if(isReadOnly){ 
+            b.innerHTML='<i class="fas fa-lock"></i> 唯讀'; b.classList.remove('btn-gold'); b.classList.add('btn-outline');
+            bd.classList.add('read-only'); t.contentEditable="false"; 
+        }else{ 
+            b.innerHTML='<i class="fas fa-pen"></i> 編輯中'; b.classList.remove('btn-outline'); b.classList.add('btn-gold');
+            bd.classList.remove('read-only'); t.contentEditable="true"; 
+        } 
+        updateUndoButtons(); 
+    }
+
+    function renderBoard(d) {
+        document.getElementById('projectTitle').innerText = d.projectTitle || "未命名";
+        const board = document.getElementById('board'); board.innerHTML = '';
+        (d.days||[]).forEach((day, i) => {
+            const col = document.createElement('div'); col.className='column';
             col.innerHTML = `
                 <div class="column-header">
-                    <span>${day.day} - ${day.title}</span>
-                    <button class="btn-outline" onclick="addCard(${dIndex})" style="padding:2px 8px; font-size:0.8rem;">+</button>
+                    <span class="day-title" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${day.day}</span>
+                    <i class="fas fa-trash delete-day-btn" onclick="deleteDay(this)" style="cursor:pointer; color:#ccc; font-size:0.9rem;"></i>
                 </div>
-                <div class="card-list" id="col-${dIndex}"></div>
+                <div class="card-list"></div>
+                <div style="padding:10px;">
+                    <button class="add-card-btn" onclick="addCard(this)"><i class="fas fa-plus"></i> 新增活動</button>
+                </div>
             `;
+            const lst = col.querySelector('.card-list');
+            (day.items||[]).forEach(item => lst.innerHTML += createCardHTML(item));
+            new Sortable(lst, { group:'shared', animation:150, disabled: isReadOnly, onEnd: saveTrigger });
             board.appendChild(col);
-
-            const listEl = col.querySelector('.card-list');
-            
-            // 渲染卡片
-            (day.items || []).forEach((item, cIndex) => {
-                // 處理連結
-                let linkHtml = '';
-                if(item.links && item.links.length > 0) {
-                   // 舊版是 array，新版可能只是 string，兼容一下
-                   const url = Array.isArray(item.links) ? item.links[0] : item.links;
-                   if(url) linkHtml = `<a href="${url}" target="_blank" onclick="event.stopPropagation()" style="color:#3498db; font-size:0.8rem; display:block; margin-top:5px;"><i class="fas fa-external-link-alt"></i> 相關連結</a>`;
-                }
-
-                // 處理圖片
-                let imgHtml = '';
-                if(item.image) {
-                    imgHtml = `<img src="${item.image}" class="card-img show">`;
-                }
-
-                const card = document.createElement('div');
-                card.className = `card type-${item.type || 'spot'}`;
-                card.innerHTML = `
-                    <span class="card-time">${item.time || '--:--'}</span>
-                    <div class="card-title">${item.title}</div>
-                    <div class="card-desc">${item.desc || ''}</div>
-                    ${imgHtml}
-                    ${linkHtml}
-                `;
-                card.onclick = () => openEditModal(dIndex, cIndex, item);
-                listEl.appendChild(card);
-            });
-
-            // SortableJS 拖拉設定
-            new Sortable(listEl, {
-                group: 'shared',
-                animation: 150,
-                onEnd: function (evt) {
-                    handleDrag(evt);
-                }
-            });
         });
         
-        // 新增天數按鈕
-        const addDayBtn = document.createElement('div');
-        addDayBtn.className = 'column';
-        addDayBtn.style.justifyContent = 'center';
-        addDayBtn.style.alignItems = 'center';
-        addDayBtn.style.cursor = 'pointer';
-        addDayBtn.style.background = 'rgba(0,0,0,0.05)';
-        addDayBtn.innerHTML = `<h3 style="color:#aaa;">+ 新增天數</h3>`;
-        addDayBtn.onclick = () => {
-            const days = localTripData.days || [];
-            days.push({ day: `Day ${days.length + 1}`, title: "新的一天", items: [] });
-            update(ref(db, `trips/${currentTripId}`), { days: days });
-        };
-        board.appendChild(addDayBtn);
-    }
-
-    // 5. 拖拉處理 logic
-    function handleDrag(evt) {
-        // 從 DOM 狀態反推資料比較複雜，建議直接從 source 和 destination 索引操作資料
-        const fromListId = evt.from.id.split('-')[1]; // col-0 -> 0
-        const toListId = evt.to.id.split('-')[1];
-        const oldIndex = evt.oldIndex;
-        const newIndex = evt.newIndex;
-
-        const days = localTripData.days;
-        const movedItem = days[fromListId].items.splice(oldIndex, 1)[0];
-        
-        if(!days[toListId].items) days[toListId].items = [];
-        days[toListId].items.splice(newIndex, 0, movedItem);
-
-        // 更新 Firebase
-        update(ref(db, `trips/${currentTripId}`), { days: days });
-    }
-
-    // 6. 編輯功能
-    window.addCard = (dIndex) => {
-        const newItem = {
-            title: "新行程", time: "10:00", desc: "描述...", type: "spot"
-        };
-        const days = localTripData.days;
-        if(!days[dIndex].items) days[dIndex].items = [];
-        days[dIndex].items.push(newItem);
-        update(ref(db, `trips/${currentTripId}`), { days: days });
-    };
-
-    window.openEditModal = (dIndex, cIndex, item) => {
-        currentDayIndex = dIndex;
-        currentCardId = cIndex;
-        
-        document.getElementById('editType').value = item.type || 'spot';
-        document.getElementById('editTime').value = item.time || '';
-        document.getElementById('editTitle').value = item.title || '';
-        document.getElementById('editDesc').value = item.desc || '';
-        
-        // 連結處理
-        let url = '';
-        if(Array.isArray(item.links) && item.links.length > 0) url = item.links[0];
-        else if(typeof item.links === 'string') url = item.links;
-        document.getElementById('editLink').value = url;
-
-        // 圖片處理
-        document.getElementById('editImgUrl').value = item.image || '';
-        document.getElementById('imgPreviewBox').innerHTML = item.image ? `<img src="${item.image}">` : '<span>預覽圖片</span>';
-        
-        document.getElementById('cardModal').classList.add('active');
-    };
-
-    window.closeModal = () => document.getElementById('cardModal').classList.remove('active');
-
-    // 圖片預覽與上傳
-    window.previewImage = (url) => {
-        document.getElementById('imgPreviewBox').innerHTML = url ? `<img src="${url}">` : '<span>預覽圖片</span>';
-    };
-
-    window.handleFileUpload = (input) => {
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
-            
-            // 限制大小 500KB 以免 Firebase RTDB 爆掉
-            if(file.size > 500000) {
-                alert("圖片太大！請使用網址或是小於 500KB 的圖片。");
-                input.value = "";
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('editImgUrl').value = e.target.result; // Base64 string
-                window.previewImage(e.target.result);
-            }
-            reader.readAsDataURL(file);
-        }
-    };
-
-    window.saveCard = () => {
-        const dIndex = currentDayIndex;
-        const cIndex = currentCardId;
-        const days = localTripData.days;
-        
-        const item = days[dIndex].items[cIndex];
-        item.type = document.getElementById('editType').value;
-        item.time = document.getElementById('editTime').value;
-        item.title = document.getElementById('editTitle').value;
-        item.desc = document.getElementById('editDesc').value;
-        
-        const link = document.getElementById('editLink').value;
-        item.links = link ? [link] : [];
-
-        const img = document.getElementById('editImgUrl').value;
-        item.image = img || null;
-
-        update(ref(db, `trips/${currentTripId}/days`), days).then(() => {
-            closeModal();
+        new Sortable(board, {
+            group: 'columns',
+            animation: 150,
+            handle: '.column-header', 
+            direction: 'horizontal',
+            disabled: isReadOnly,
+            onEnd: saveTrigger
         });
-    };
+        
+        const addDayCol = document.createElement('div'); 
+        addDayCol.className = 'add-day-column'; 
+        addDayCol.innerHTML = `<button class="add-day-btn" onclick="addDay()"><i class="fas fa-plus"></i></button>`;
+        
+        if(isReadOnly) addDayCol.style.display = 'none'; 
+        board.appendChild(addDayCol);
+        
+        if(isReadOnly) board.classList.add('read-only'); else board.classList.remove('read-only');
+    }
 
-    window.deleteCard = () => {
-        if(!confirm("確定要刪除此行程嗎？")) return;
-        const days = localTripData.days;
-        days[currentDayIndex].items.splice(currentCardId, 1);
-        update(ref(db, `trips/${currentTripId}/days`), days).then(() => closeModal());
-    };
+    function createCardHTML(item) {
+        let links = (item.links||[]).map(l=>`<div class="link-item"><a href="${l}" target="_blank"><i class="fas fa-link"></i> 連結</a><span class="remove-btn" onclick="this.parentElement.remove();saveTrigger()">×</span></div>`).join('');
+        let imgs = (item.images||[]).map(s=>`<div class="img-item"><img src="${s}" onclick="window.open(this.src)"><div class="remove-img-btn" onclick="this.parentElement.remove();saveTrigger()">×</div></div>`).join('');
+        
+        return `
+        <div class="card type-${item.type||'spot'}">
+            <span class="card-time" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${item.time}</span>
+            <div class="card-title" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${item.title}</div>
+            <div class="card-desc" contenteditable="${!isReadOnly}" onblur="saveTrigger()">${item.desc||''}</div>
+            <div class="link-list">${links}</div>
+            <div class="img-gallery">${imgs}</div>
+            
+            <div class="card-toolbar">
+                <div class="type-tags">
+                    <span class="type-badge bg-spot" onclick="updateType(this,'spot')">景</span>
+                    <span class="type-badge bg-food" onclick="updateType(this,'food')">食</span>
+                    <span class="type-badge bg-travel" onclick="updateType(this,'travel')">行</span>
+                    <span class="type-badge bg-stay" onclick="updateType(this,'stay')">宿</span>
+                </div>
+                <div class="action-icons">
+                    <label style="cursor:pointer;"><i class="fas fa-camera"></i><input type="file" style="display:none" accept="image/*" onchange="handleImage(this)"></label>
+                    <span onclick="addLink(this)"><i class="fas fa-link"></i></span>
+                    <span class="delete" onclick="deleteCard(this)"><i class="fas fa-trash"></i></span>
+                </div>
+            </div>
+        </div>`;
+    }
+    
+    function getDataFromDOM() {
+        const days = [];
+        document.querySelectorAll('.column').forEach(col => {
+            const items = [];
+            col.querySelectorAll('.card').forEach(c => {
+                let links=[]; c.querySelectorAll('.link-item a').forEach(a=>links.push(a.href));
+                let imgs=[]; c.querySelectorAll('.img-item img').forEach(i=>imgs.push(i.src));
+                
+                let type = 'spot';
+                if(c.classList.contains('type-food')) type = 'food';
+                else if(c.classList.contains('type-travel')) type = 'travel';
+                else if(c.classList.contains('type-stay')) type = 'stay';
 
-    window.shareTrip = () => {
-        navigator.clipboard.writeText(currentTripId).then(() => alert(`行程 ID 已複製：\n${currentTripId}\n請傳給朋友，他們可以在首頁加入！`));
-    };
-
+                items.push({ 
+                    time: c.querySelector('.card-time').innerText, 
+                    title: c.querySelector('.card-title').innerText, 
+                    desc: c.querySelector('.card-desc').innerText, 
+                    type: type, 
+                    links: links, 
+                    images: imgs 
+                });
+            });
+            days.push({ day: col.querySelector('.day-title').innerText, items: items });
+        });
+        return { projectTitle: document.getElementById('projectTitle').innerText, days: days };
+    }
 </script>
 </body>
 </html>
